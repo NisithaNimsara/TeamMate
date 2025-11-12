@@ -5,5 +5,6 @@ public record Participant(
         String preferredGame,
         int skillLevel,           // 1–10
         String preferredRole,
-        int personalityScore     // 20–100
+        int personalityScore,     // 20–100
+        PersonalityType personalityType
 ) {}
