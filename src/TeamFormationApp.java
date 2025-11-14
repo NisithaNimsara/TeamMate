@@ -101,7 +101,7 @@ public class TeamFormationApp {
 
 
     // read file and import it into memory with error handing as well
-    static ImportResult ImportParticipants(String fileName) {
+    static ImportResult importParticipants(String fileName) {
         int imported = 0,  ignored = 0;
         try(BufferedReader br = Files.newBufferedReader(Paths.get(fileName))){
             String header = br.readLine(); //Skip header
@@ -141,7 +141,15 @@ public class TeamFormationApp {
         return new ImportResult(imported, ignored);
     }
 
+    // preload a System file
+    static void preloadFromSystemFile(){
+        importedParticipants.clear();
+        knownEmails.clear();
+        nextIdCounter = 1;
 
+        if (Files.exists(Paths.get(PARTICIPANTS_CSV))) return;
+        importParticipants(PARTICIPANTS_CSV);
+    }
 
     public static void main(String[] args) {
 
