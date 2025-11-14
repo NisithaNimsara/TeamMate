@@ -1,13 +1,17 @@
 import File.CSV;
 import Logic.Validators;
+import Model.ImportResult;
 import Model.Participant;
+import Model.PersonalityType;
 import org.w3c.dom.ls.LSOutput;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Matcher;
 
 public class TeamFormationApp {
 
@@ -85,6 +89,59 @@ public class TeamFormationApp {
             }
         }
     }
+
+    // Accepts P7 / P007 / p12 (all kinds)
+    static void updateIdCointerFromExisting (String id){
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^[Pg](\\d+)$").matcher(id);
+        if (m.matches()){
+            int n = Integer.parseInt(m.group(1));
+            nextIdCounter = Math.max(nextIdCounter, n + 1);
+        }
+    }
+
+
+    // read file and import it into memory with error handing as well
+    static ImportResult ImportParticipants(String fileName) {
+        int imported = 0,  ignored = 0;
+        try(BufferedReader br = Files.newBufferedReader(Paths.get(fileName))){
+            String header = br.readLine(); //Skip header
+            if (header == null) return new ImportResult(0, 0);
+            String line;
+            while ((line = br.readLine()) != null){
+                List<String> cols = CSV.parseLine(line);
+                if (cols.size() != 8){ ignored++; continue; }
+                try{
+                    String id = cols.get(0).trim();
+                    String name = cols.get(1).trim();
+                    String email = cols.get(2).trim();
+                    String preferredGame = cols.get(3).trim();
+                    int skillLevel = Integer.parseInt(cols.get(4).trim());
+                    String preferredRole = cols.get(5).trim();
+                    int personalityScore = Integer.parseInt(cols.get(6).trim());
+                    PersonalityType personalityType = PersonalityType.valueOf(cols.get(7).trim());
+
+                    if (id.isEmpty() || name.isEmpty() || Validators.isValidEmail(email)){ignored++; continue; }
+                    if(skillLevel < 1 || skillLevel >10 || personalityScore < 20 || personalityScore > 100){ ignored++; continue; }
+
+                    String key = email.toLowerCase(Locale.ROOT);
+
+                    importedParticipants.add(new Participant(id,name,email,preferredGame,skillLevel,preferredRole,personalityScore,personalityType));
+                    knownEmails.add(key);
+
+                    updateIdCointerFromExisting(id);
+
+                    imported++;
+                } catch (Exception ex){
+                    ignored++;
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading:  "+e.getMessage());
+        }
+        return new ImportResult(imported, ignored);
+    }
+
+
 
     public static void main(String[] args) {
 
