@@ -27,6 +27,20 @@ public class TeamFormationApp {
         }
     }
 
+    // check integer fields are in assigned range?
+    static int promptIntRange(Scanner sc, String label, int min, int max) {
+        while (true) {
+            System.out.print(label + ": ");
+            String s = sc.nextLine().trim();
+            try {
+                int v = Integer.parseInt(s);
+                if (v < min || v > max) throw new NumberFormatException();
+                return v;
+            }  catch (NumberFormatException e) {
+                System.out.println("Please enter an Integer between [" + min + " and " + max + "]");
+            }
+        }
+    }
 
 
     public static void main(String[] args) {
