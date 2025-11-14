@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,38 @@ public class CSV {
             bw.write(toCsvLine(header));
             bw.newLine();
         }
+    }
+
+    // getting CSV line into columns and handling quoted fields.
+    public static List<String> parseLine(String line) {
+        List<String> out = new ArrayList<>();
+        if(line == null) return out;
+        StringBuilder sb = new StringBuilder();
+        boolean inQuotes = false;
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (inQuotes) {
+                if (c == '"') {
+                    if (i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                        sb.append('"');
+                        i++; //escape quote
+                    } else {
+                        inQuotes = false;
+                    }
+                } else {
+                    sb.append(c);
+                }
+            } else  {
+                if (c == '"') {
+                    inQuotes = true;
+                } else if (c == ',') {
+                    out.add(sb.toString());
+                    sb.append(c);
+                }
+            }
+        }
+        out.add(sb.toString());
+        return out;
     }
 
 }
