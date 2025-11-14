@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLOutput;
 import java.util.*;
 import java.util.regex.Matcher;
 
@@ -55,7 +56,7 @@ public class TeamFormationApp {
     // Check Email's uniqueness and format
     static String promptEmailUnique(Scanner sc) {
         while (true) {
-            System.out.print("Email: ");
+            System.out.print("Enter Email: ");
             String email = sc.nextLine().trim();
             if (!Validators.isValidEmail(email)){
                 System.out.println("invalid Email format. Try again");
@@ -149,6 +150,55 @@ public class TeamFormationApp {
 
         if (Files.exists(Paths.get(PARTICIPANTS_CSV))) return;
         importParticipants(PARTICIPANTS_CSV);
+    }
+
+    // participant survey and input gathering(with validations)
+    static void handleParticipant(Scanner sc){
+        try{
+            System.out.println("\n-- Participant Registration --");
+
+            preloadFromSystemFile(); //Reload file
+
+            String name = promptNonEmpty(sc, "Enter Name: ");
+            String email = promptEmailUnique(sc);
+            if(!Validators.isValidEmail(email)){
+                System.out.println("invalid Email format. Try again");
+            }
+            String preferredGame = promptNonEmpty(sc, "Enter Preferred Game: ");
+            int skillLevel = promptIntRange(sc, "Enter skill level (1-10): ",1,10);
+            String preferredRole = promptNonEmpty(sc, "Enter preferred Role: ");
+
+            System.out.println("\nAnswer each from 1 (Strongly Disagree) to 5 (Strongly Agree)");
+            int q1 = promptIntRange(sc, "I enjoy taking the lead and guiding others during group activities: ", 1, 5);
+            int q2 = promptIntRange(sc, "I prefer analyzing situations and coming up with strategic solutions: ", 1, 5);
+            int q3 = promptIntRange(sc, "I work well with others and enjoy collaborative teamwork: ", 1, 5);
+            int q4 = promptIntRange(sc, "I am calm under pressure and can help maintain team morale: ", 1, 5);
+            int q5 = promptIntRange(sc, "I like making quick decisions and adapting in dynamic situations: ", 1, 5);
+
+            int score = q1 + q2 + q3 + q4 + q5; // 5–25
+            int scaledScore = score * 4;        // 20–100
+
+            PersonalityType personalityType = PersonalityType.fromScaledScore(scaledScore);
+            // generate next ID
+            String newId = allocateNextId();
+
+            Participant p = new Participant(newId,name,email,preferredGame,skillLevel,preferredRole,scaledScore,personalityType);
+
+            //Write to the file
+            CSV.appendRow(PARTICIPANTS_CSV, Arrays.asList(
+                    p.id(), p.name(), p.email(), p.preferredGame(),
+                    String.valueOf(p.skillLevel()),  p.preferredRole(),
+                    String.valueOf(p.personalityScore()), p.personalityType().name()
+            ));
+
+            //update to memory
+            importedParticipants.add(p);
+            knownEmails.add(email.toLowerCase(Locale.ROOT));
+
+            System.out.println("Success message: Saved " + p.name() + " with ID " + p.id() + " to " + PARTICIPANTS_CSV);
+        } catch (Exception e){
+            System.out.println("Failed to save participant: " + e.getMessage());
+        }
     }
 
     public static void main(String[] args) {
