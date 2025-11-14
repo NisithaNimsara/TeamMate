@@ -2,7 +2,7 @@ package Model;
 
 public enum PersonalityType {
     // personality categories based on a score
-    Leader, Balanced, Thinker, Normal;
+    Leader, Balanced, Thinker;
 
     //Convert a 0–100 score into a personality type.
     public static PersonalityType fromScaledScore(int scaled0to100) {
@@ -12,7 +12,6 @@ public enum PersonalityType {
             return Balanced;
         if (scaled0to100 >= 50)
             return Thinker;
-        else
-            return Normal;
+        return Thinker; // default
     }
 }
