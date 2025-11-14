@@ -33,4 +33,12 @@ public class CSV {
         return needQuotes ? "\"" + out + "\"" : out;
     }
 
+    //Writes the header row in the CSV file (overwrites any existing content).
+    public static void writeHeader(String filename, List<String> header) throws IOException {
+        try (BufferedWriter bw = Files.newBufferedWriter(Paths.get(filename))) {
+            bw.write(toCsvLine(header));
+            bw.newLine();
+        }
+    }
+
 }
