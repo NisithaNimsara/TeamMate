@@ -1,6 +1,12 @@
+import File.CSV;
 import Logic.Validators;
 import Model.Participant;
+import org.w3c.dom.ls.LSOutput;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class TeamFormationApp {
@@ -65,6 +71,19 @@ public class TeamFormationApp {
         String id = String.format("P%03d", nextIdCounter);
         nextIdCounter++;
         return id;
+    }
+
+    // check and ensure the CSV header exist(correct)
+    static void ensureCsvHeaderExist(String fileName) {
+        Path p = Paths.get(fileName);
+        if (!Files.exists(p)) {
+            try{
+                CSV.writeHeader(fileName, Arrays.asList(
+                        "id","name","email","preferredGame","skillLevel","preferredRole","personalityScore","personalityType"));
+            } catch (IOException e) {
+                System.out.println("Could not Create "+ fileName +": "+e.getMessage());
+            }
+        }
     }
 
     public static void main(String[] args) {
