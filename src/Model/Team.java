@@ -1,5 +1,6 @@
+package Model;
+
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Team {
 

@@ -1,3 +1,5 @@
+package Model;// Data class for one participant.
+
 public record Participant(
         String id,
         String name,
