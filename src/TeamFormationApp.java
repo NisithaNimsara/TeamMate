@@ -42,6 +42,23 @@ public class TeamFormationApp {
         }
     }
 
+    // Check Email's uniqueness and format
+    static String promptEmailUnique(Scanner sc) {
+        while (true) {
+            System.out.print("Email: ");
+            String email = sc.nextLine().trim();
+            if (!Validators.isValidEmail(email)){
+                System.out.println("invalid Email format. Try again");
+                continue;
+            }
+            String key = email.toLowerCase(Locale.ROOT);
+            if (knownEmails.contains(key)) {
+                System.out.println("This Email already registered. Please use different one");
+                continue;
+            }
+            return email;
+        }
+    }
 
     public static void main(String[] args) {
 
