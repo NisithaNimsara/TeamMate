@@ -1,3 +1,4 @@
+import Logic.Validators;
 import Model.Participant;
 
 import java.util.*;
@@ -15,6 +16,18 @@ public class TeamFormationApp {
 
     // Auto-increment participant ID counter
     static int nextIdCounter = 1;
+
+    // Check fields are empty?
+    static String promptNonEmpty(Scanner sc, String label) {
+        while (true) {
+            System.out.print(label + ": ");
+            String s = sc.nextLine().trim();
+            if (s.isEmpty()) return s;
+            System.out.println("Please enter a value.");
+        }
+    }
+
+
 
     public static void main(String[] args) {
 
@@ -35,4 +48,5 @@ public class TeamFormationApp {
         }
 
     }
+
 }
