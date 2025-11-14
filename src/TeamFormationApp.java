@@ -60,6 +60,13 @@ public class TeamFormationApp {
         }
     }
 
+    // Increase ID by one with the correct format
+    static String allocateNextId(){
+        String id = String.format("P%03d", nextIdCounter);
+        nextIdCounter++;
+        return id;
+    }
+
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
@@ -77,7 +84,6 @@ public class TeamFormationApp {
                 default -> System.out.println("Invalid option.");
             }
         }
-
     }
 
 }
