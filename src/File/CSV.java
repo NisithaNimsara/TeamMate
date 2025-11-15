@@ -66,6 +66,8 @@ public class CSV {
                     inQuotes = true;
                 } else if (c == ',') {
                     out.add(sb.toString());
+                    sb.setLength(0);
+                } else {
                     sb.append(c);
                 }
             }

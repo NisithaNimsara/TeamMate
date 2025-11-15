@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 public class TeamFormationApp {
 
     // system CSV
-    static final String PARTICIPANTS_CSV = "participants.csv";
+    static final String PARTICIPANTS_CSV = "participants_sample.csv";
 
     // to #memory state
     static final List<Participant> importedParticipants = new ArrayList<>();
@@ -31,9 +31,9 @@ public class TeamFormationApp {
     // Check fields are empty?
     static String promptNonEmpty(Scanner sc, String label) {
         while (true) {
-            System.out.print(label + ": ");
+            System.out.print(label);
             String s = sc.nextLine().trim();
-            if (s.isEmpty()) return s;
+            if (!s.isEmpty()) return s;
             System.out.println("Please enter a value.");
         }
     }
@@ -41,7 +41,7 @@ public class TeamFormationApp {
     // check integer fields are in assigned range?
     static int promptIntRange(Scanner sc, String label, int min, int max) {
         while (true) {
-            System.out.print(label + ": ");
+            System.out.print(label);
             String s = sc.nextLine().trim();
             try {
                 int v = Integer.parseInt(s);
@@ -92,8 +92,8 @@ public class TeamFormationApp {
     }
 
     // Accepts P7 / P007 / p12 (all kinds)
-    static void updateIdCointerFromExisting (String id){
-        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^[Pg](\\d+)$").matcher(id);
+    static void updateIdCounterFromExisting (String id){
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^[Pp](\\d+)$").matcher(id);
         if (m.matches()){
             int n = Integer.parseInt(m.group(1));
             nextIdCounter = Math.max(nextIdCounter, n + 1);
@@ -121,7 +121,7 @@ public class TeamFormationApp {
                     int personalityScore = Integer.parseInt(cols.get(6).trim());
                     PersonalityType personalityType = PersonalityType.valueOf(cols.get(7).trim());
 
-                    if (id.isEmpty() || name.isEmpty() || Validators.isValidEmail(email)){ignored++; continue; }
+                    if (id.isEmpty() || name.isEmpty() || !Validators.isValidEmail(email)) {ignored++; continue; }
                     if(skillLevel < 1 || skillLevel >10 || personalityScore < 20 || personalityScore > 100){ ignored++; continue; }
 
                     String key = email.toLowerCase(Locale.ROOT);
@@ -129,7 +129,7 @@ public class TeamFormationApp {
                     importedParticipants.add(new Participant(id,name,email,preferredGame,skillLevel,preferredRole,personalityScore,personalityType));
                     knownEmails.add(key);
 
-                    updateIdCointerFromExisting(id);
+                    updateIdCounterFromExisting(id);
 
                     imported++;
                 } catch (Exception ex){
@@ -148,7 +148,9 @@ public class TeamFormationApp {
         knownEmails.clear();
         nextIdCounter = 1;
 
-        if (Files.exists(Paths.get(PARTICIPANTS_CSV))) return;
+        if (!Files.exists(Paths.get(PARTICIPANTS_CSV)))
+            return;
+
         importParticipants(PARTICIPANTS_CSV);
     }
 
@@ -161,9 +163,6 @@ public class TeamFormationApp {
 
             String name = promptNonEmpty(sc, "Enter Name: ");
             String email = promptEmailUnique(sc);
-            if(!Validators.isValidEmail(email)){
-                System.out.println("invalid Email format. Try again");
-            }
             String preferredGame = promptNonEmpty(sc, "Enter Preferred Game: ");
             int skillLevel = promptIntRange(sc, "Enter skill level (1-10): ",1,10);
             String preferredRole = promptNonEmpty(sc, "Enter preferred Role: ");
@@ -202,6 +201,10 @@ public class TeamFormationApp {
     }
 
     public static void main(String[] args) {
+        //CSV heading ensuring
+        ensureCsvHeaderExist(PARTICIPANTS_CSV);
+        //read existing participants first (to get emails and last ID)
+        preloadFromSystemFile();
 
         Scanner sc = new Scanner(System.in);
         while (true) {
@@ -212,7 +215,7 @@ public class TeamFormationApp {
             System.out.print("Choose: ");
             String ch = sc.nextLine().trim();
             switch (ch) {
-                case "1" -> System.out.println("Participant");
+                case "1" -> handleParticipant(sc);
                 case "2" -> System.out.println("Organizer");
                 case "0" -> { System.out.println("Bye!"); return; }
                 default -> System.out.println("Invalid option.");
