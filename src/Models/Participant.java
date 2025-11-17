@@ -1,6 +1,8 @@
 package Models;
 import java.util.Objects;
 
+// This class represents a Participant.
+// This store all the information collected from the survey and CSV file.
 public class Participant {
     private final String id;
     private final String name;
@@ -11,6 +13,7 @@ public class Participant {
     private final int personalityScore;
     private final PersonalityType personalityType;
 
+    // Constructor
     public Participant(String id,
                        String name,
                        String email,
@@ -29,6 +32,7 @@ public class Participant {
         this.personalityType = personalityType;
     }
 
+    // Getters (only read access)
     public String getId() {
         return id;
     }
@@ -54,6 +58,7 @@ public class Participant {
         return personalityType;
     }
 
+    // To display participant data clearly in console output.
     @Override
     public String toString() {
         return "ID: " + id +
