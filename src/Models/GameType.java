@@ -19,4 +19,22 @@ public enum GameType {
         }
     }
 
+    public static GameType getGameType(int value) {
+        if (value == 1) {
+            return GameType.CHESS;
+        } else if (value == 2) {
+            return GameType.FIFA;
+        } else if (value == 3) {
+            return GameType.BASKETBALL;
+        } else if (value == 4) {
+            return GameType.CSGO;
+        } else if (value == 5) {
+            return GameType.DOTA2;
+        } else if (value == 6) {
+            return GameType.VALORANT;
+        } else {
+            return GameType.OTHER;
+        }
+    }
+
 }

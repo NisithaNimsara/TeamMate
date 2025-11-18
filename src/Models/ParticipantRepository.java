@@ -32,7 +32,7 @@ public class ParticipantRepository {
     }
 
     // to check email uniqueness
-    private boolean isEmailTaken(String email){
+    public boolean isEmailTaken(String email){
         String lover = email.toLowerCase();
         return participants.stream().anyMatch(p -> p.getEmail().toLowerCase().equals(lover));
     }
