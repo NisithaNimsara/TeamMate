@@ -25,13 +25,14 @@ public class AppController {
 
             switch (choice) {
                 case 1:
+                    // Participant Menu
                     participantController.participantMenu(input);
                     break;
                 case 2:
                     // Option 2 → Organizer Menu
                     break;
                 case 0:
-                    // Option 0 → Exit the app
+                    // Exit the app
                     running = false;
                     System.out.println("Exiting application...");
                     break;
