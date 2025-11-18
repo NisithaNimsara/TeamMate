@@ -61,14 +61,14 @@ public class Participant {
     // To display participant data clearly in console output.
     @Override
     public String toString() {
-        return "ID: " + id +
-                " | Name: " + name +
-                " | Email: " + email +
-                " | Game: " + preferredGame +
-                " | Skill: " + skillLevel +
-                " | Role: " + preferredRole +
-                " | PersonalityScore: " + personalityScore +
-                " | PersonalityType: " + personalityType;
+        return "ID: " + getId() +
+                " | Name: " + getName() +
+                " | Email: " + getEmail() +
+                " | Game: " + getPreferredGame() +
+                " | Skill: " + getSkillLevel() +
+                " | Role: " + getPreferredRole() +
+                " | PersonalityScore: " + getPersonalityScore() +
+                " | PersonalityType: " + getPersonalityType();
     }
 
     // Convert the object back into a CSV-compatible row

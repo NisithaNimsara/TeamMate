@@ -37,7 +37,7 @@ public class ParticipantController {
                     newRegistration();
                     break;
                 case 2:
-                    // vies details
+                    viewDetails();
                     break;
                 case 0:
                     running = false;
@@ -133,7 +133,23 @@ public class ParticipantController {
             // If thread is interrupted (rare but must handle)
             System.out.println("Thread interrupted: " + e.getMessage());
         }
-
-
     }
+
+    // search participant by email
+    private void viewDetails() {
+        String email = input.readLine("Enter your email: ");
+
+        // Check if this email exists in the system
+        if (!repository.isEmailTaken(email)) {
+            System.out.println("No participant found with this email.");
+            return; // nothing more to do
+        }
+
+        // Search and display participant details
+        repository.findByEmail(email).ifPresentOrElse(
+                        p -> System.out.println(p.toString()),
+                        () -> System.out.println("No participant found.") // should not happen
+                );
+    }
+
 }

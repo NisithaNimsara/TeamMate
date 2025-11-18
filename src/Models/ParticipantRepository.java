@@ -53,6 +53,14 @@ public class ParticipantRepository {
         appendToSystemFile(p);            // write to CSV
     }
 
+    // find participant by email
+    public Optional<Participant> findByEmail(String email){
+        String lower = email.toLowerCase();
+        return participants.stream()
+                .filter(p -> p.getEmail().toLowerCase().equals(lower))
+                .findFirst();
+    }
+
     //--------------------------------------------------------------------------
     // ------------Internal helpers---------------------------------------------
 
