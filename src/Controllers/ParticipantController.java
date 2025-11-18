@@ -3,6 +3,7 @@ package Controllers;
 
 import Models.*;
 import ValidatorHelp.ConsoleInput;
+import ValidatorHelp.FileProcessingException;
 import ValidatorHelp.InvalidParticipantException;
 
 // This will handles everything related to "Participants".
@@ -108,13 +109,31 @@ public class ParticipantController {
             String id = repository.getNextId();
 
             //create Participant object
-            Participant p = new Participant(id, name, email, game, skill, role, score, personalityType);
+            Participant participant = new Participant(id, name, email, game, skill, role, score, personalityType);
 
-            System.out.println(p.toString());
+            //save to CSV using THREAD
+            Thread t = new Thread(() -> {
+                try{
+                    repository.addParticipant(participant);
+                } catch (FileProcessingException e){
+                    System.out.println("Error saving participant: "+ e.getMessage());
+                }
+            });
+
+            t.start(); // run in background
+            t.join();  // wait until the tread finish
+
+            System.out.println("\nRegistration of "+ participant.getName()+" with ID "+participant.getId()+ " saved successfully.");
+
 
         } catch (InvalidParticipantException e) {
+            // If survey or any values are invalid
+            System.out.println("Invalid survey values: " + e.getMessage());
+        } catch (InterruptedException e) {
             // If thread is interrupted (rare but must handle)
             System.out.println("Thread interrupted: " + e.getMessage());
         }
+
+
     }
 }

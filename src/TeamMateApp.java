@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 public class TeamMateApp {
 
-    private static final String SYSTEM_PARTICIPANT_FILE = "";
+    private static final String SYSTEM_PARTICIPANT_FILE = "participants_sample.csv";
 
     public static void main(String[] args) {
         Scanner scanner =  new Scanner(System.in);
