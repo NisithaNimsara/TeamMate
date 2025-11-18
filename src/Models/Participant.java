@@ -70,4 +70,18 @@ public class Participant {
                 " | PersonalityScore: " + personalityScore +
                 " | PersonalityType: " + personalityType;
     }
+
+    // Convert the object back into a CSV-compatible row
+    public String toCSVRow() {
+        return String.join(",",
+                id,
+                name,
+                email,
+                preferredGame.name(),
+                String.valueOf(skillLevel),
+                preferredRole.name(),
+                String.valueOf(personalityScore),
+                personalityType.name()
+        );
+    }
 }
