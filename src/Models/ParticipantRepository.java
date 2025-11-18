@@ -31,6 +31,15 @@ public class ParticipantRepository {
         return String.format("P%03d", next);
     }
 
+    // to check email correctness
+    public boolean isValidEmail(String email){
+        if (email != null  && email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")){
+            return true;
+        } else  {
+            return false;
+        }
+    }
+
     // to check email uniqueness
     public boolean isEmailTaken(String email){
         String lover = email.toLowerCase();

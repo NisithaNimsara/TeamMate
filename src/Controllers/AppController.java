@@ -1,12 +1,15 @@
 package Controllers;
 
+import Models.ParticipantRepository;
 import ValidatorHelp.ConsoleInput;
 
 public class AppController {
     private final ConsoleInput input;
+    private final ParticipantController participantController;
 
-    public AppController(ConsoleInput input) {
+    public AppController(ConsoleInput input, ParticipantController participantController) {
         this.input = input;
+        this.participantController = participantController;
     }
 
     // This method starts the whole application.
@@ -22,7 +25,7 @@ public class AppController {
 
             switch (choice) {
                 case 1:
-                    // Option 1 → Participant Menu
+                    participantController.participantMenu(input);
                     break;
                 case 2:
                     // Option 2 → Organizer Menu

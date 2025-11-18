@@ -10,16 +10,17 @@ public class ParticipantController {
 
     private final PersonalityClassifier classifier;
     private final ParticipantRepository repository;
+    private final ConsoleInput input;
 
     //Constructor
-    public ParticipantController(PersonalityClassifier classifier, ParticipantRepository repository) {
+    public ParticipantController(PersonalityClassifier classifier, ParticipantRepository repository, ConsoleInput input) {
         this.classifier = classifier;
         this.repository = repository;
+        this.input = input;
     }
 
     // participant menu
-    public void participantMenu(){
-        ConsoleInput input = null;
+    public void participantMenu(ConsoleInput input){
         boolean running = true;
 
         while(running){
@@ -32,7 +33,7 @@ public class ParticipantController {
 
             switch (choice) {
                 case 1:
-                    // handle registration
+                    newRegistration();
                     break;
                 case 2:
                     // vies details
@@ -48,7 +49,6 @@ public class ParticipantController {
 
     // handle new registration of participant
     private void newRegistration(){
-        ConsoleInput input = null;
         try {
             //name
             String name = input.readLine("Enter your name: ");
@@ -56,9 +56,12 @@ public class ParticipantController {
             String email;
             while (true) {
                 email = input.readLine("Enter your university email: ");
+                boolean validEmail = repository.isValidEmail(email);
                 boolean emailTaken = repository.isEmailTaken(email);
-                if (emailTaken) {
-                    System.out.println("This email is already registered. Try another one");
+                if (!validEmail) {
+                    System.out.println("Incorrect email format. Please try again.");
+                } else if (emailTaken) {
+                    System.out.println("This email is already registered. Try another one.");
                 } else {
                     break;
                 }
@@ -106,6 +109,8 @@ public class ParticipantController {
 
             //create Participant object
             Participant p = new Participant(id, name, email, game, skill, role, score, personalityType);
+
+            System.out.println(p.toString());
 
         } catch (InvalidParticipantException e) {
             // If thread is interrupted (rare but must handle)
