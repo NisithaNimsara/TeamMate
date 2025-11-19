@@ -153,6 +153,53 @@ public class ParticipantRepository {
             throw new FileProcessingException("Failed to write participant to system file", e);
         }
     }
+
+    //------------organizer----------------------
+    //Imports participants from CSV file.
+    // this will returns: int[]{importedCount, ignoredCount}
+    public int[] importFromCsvFile(String file) throws FileProcessingException{
+
+        participants.clear(); // clear current list before import
+
+        int imported = 0;
+        int ignored = 0;
+
+        if (!Files.exists(Path.of(systemFileName))){
+            //Validate the availability
+            throw new FileProcessingException("File " + systemFileName + " does not exist");
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(systemFileName))){
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                try{
+                    Participant p = parseLine(line);
+                    if (p != null) {
+                        continue;
+                    }
+
+                    // prevent duplicates (using email)
+                    if (isEmailTaken(p.getEmail())) {
+                        ignored++;
+                        continue;
+                    }
+
+                    participants.add(p);
+                    updateMaxIdFromString(p.getId());
+                    imported++;
+
+                } catch (Exception e) {
+                    // if any fault in that error, it will ignore.
+                    ignored++;
+                }
+            }
+        } catch (IOException e){
+            throw new FileProcessingException("Error reading external file", e);
+        }
+
+        return new int[]{imported, ignored};
+    }
 }
 
 
