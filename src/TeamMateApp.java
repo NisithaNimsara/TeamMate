@@ -1,4 +1,5 @@
 import Controllers.AppController;
+import Controllers.OrganizerController;
 import Controllers.ParticipantController;
 import Models.ParticipantRepository;
 import Models.PersonalityClassifier;
@@ -18,8 +19,12 @@ public class TeamMateApp {
 
         //controllers
         ParticipantController participantController = new ParticipantController(classifier, repository, input);
-        AppController appController = new AppController(input, participantController);
+        OrganizerController organizerController = new OrganizerController(repository);
 
+        AppController appController = new AppController(input, participantController, organizerController);
+
+        //------------------------------------------------------------------------------------------------------------
+        //Main app run
         appController.run();
     }
 }

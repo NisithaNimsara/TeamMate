@@ -6,10 +6,12 @@ import ValidatorHelp.ConsoleInput;
 public class AppController {
     private final ConsoleInput input;
     private final ParticipantController participantController;
+    private final OrganizerController organizerController;
 
-    public AppController(ConsoleInput input, ParticipantController participantController) {
+    public AppController(ConsoleInput input, ParticipantController participantController, OrganizerController organizerController) {
         this.input = input;
         this.participantController = participantController;
+        this.organizerController = organizerController;
     }
 
     // This method starts the whole application.
@@ -29,7 +31,7 @@ public class AppController {
                     participantController.participantMenu(input);
                     break;
                 case 2:
-                    // Option 2 → Organizer Menu
+                    organizerController.organizerMenu(input);
                     break;
                 case 0:
                     // Exit the app

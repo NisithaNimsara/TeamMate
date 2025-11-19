@@ -175,7 +175,7 @@ public class ParticipantRepository {
             while ((line = br.readLine()) != null) {
                 try{
                     Participant p = parseLine(line);
-                    if (p != null) {
+                    if (p == null) {
                         continue;
                     }
 
