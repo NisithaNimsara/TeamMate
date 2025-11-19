@@ -10,10 +10,12 @@ import ValidatorHelp.FileProcessingException;
 // View and export formed teams
 public class OrganizerController {
     private final ParticipantRepository repository;  // This will access to participants data
+    private final ConsoleInput input;
 
     //Constructor
-    public OrganizerController(ParticipantRepository repository) {
+    public OrganizerController(ParticipantRepository repository, ConsoleInput input) {
         this.repository = repository;
+        this.input = input;
 
     }
     // Organizer menu.
@@ -30,7 +32,7 @@ public class OrganizerController {
                     importSystemCSV();
                     break;
                 case 2:
-                    //import file
+                    importExternalCSV();
                     break;
                 case 0:
                     running = false;
@@ -53,7 +55,17 @@ public class OrganizerController {
         }
     }
 
+    // load data from given CSV file.
+    public void importExternalCSV(){
+        String fileName = input.readLine("Enter external CSV file name to import: ");
 
+        try{
+            int[] result = repository.importFromCsvFile(fileName);
+            System.out.printf("Imported %d participants, ignored %d.%n", result[0], result[1]);
+        }  catch (FileProcessingException e){
+            System.out.println("Import Failed: "+e.getMessage());
+        }
 
-    public void importExternalCSV(){}
+    }
+
 }

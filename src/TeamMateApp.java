@@ -19,7 +19,7 @@ public class TeamMateApp {
 
         //controllers
         ParticipantController participantController = new ParticipantController(classifier, repository, input);
-        OrganizerController organizerController = new OrganizerController(repository);
+        OrganizerController organizerController = new OrganizerController(repository, input);
 
         AppController appController = new AppController(input, participantController, organizerController);
 

@@ -164,12 +164,12 @@ public class ParticipantRepository {
         int imported = 0;
         int ignored = 0;
 
-        if (!Files.exists(Path.of(systemFileName))){
+        if (!Files.exists(Path.of(file))){
             //Validate the availability
-            throw new FileProcessingException("File " + systemFileName + " does not exist");
+            throw new FileProcessingException("File " + file + " does not exist");
         }
 
-        try (BufferedReader br = new BufferedReader(new FileReader(systemFileName))){
+        try (BufferedReader br = new BufferedReader(new FileReader(file))){
             String line;
 
             while ((line = br.readLine()) != null) {
