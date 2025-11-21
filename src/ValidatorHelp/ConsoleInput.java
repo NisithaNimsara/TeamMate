@@ -18,10 +18,15 @@ public class ConsoleInput {
     public String readLine(String prompt) {
         while (true) {
             System.out.print(prompt);
-            if (prompt.isEmpty()) {
-                System.out.println("Field is Empty!!");
-            } else  {
-                return scanner.nextLine().trim();
+            try{
+                String value = scanner.nextLine();
+                if (value.isEmpty()) {
+                    System.out.println("Field is empty");
+                } else  {
+                    return value;
+                }
+            } catch(Exception e){
+                System.out.println("Invalid input");
             }
         }
     }
