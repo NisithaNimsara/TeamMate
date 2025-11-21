@@ -105,19 +105,25 @@ public class ParticipantController {
             // personality type
             PersonalityType personalityType = classifier.classify(score);
 
-            // generate id(next id)
-            String id = repository.getNextId();
+            int choice = input.readIntInRange("\nDo you want to add this to CSV? (1=Yes, 0=No): ", 0, 1);
 
-            //create Participant object
-            Participant participant = new Participant(id, name, email, game, skill, role, score, personalityType);
+            if (choice == 1) {
+                // generate id(next id)
+                String id = repository.getNextId();
 
-            SaveParticipantThread t = new SaveParticipantThread(repository, participant);
+                //create Participant object
+                Participant participant = new Participant(id, name, email, game, skill, role, score, personalityType);
 
-            t.start(); // run in background
-            t.join();  // wait until the tread finish
+                SaveParticipantThread t = new SaveParticipantThread(repository, participant);
 
-            System.out.println("\nRegistration of "+ participant.getName()+" with ID "+participant.getId()+ " saved successfully.");
+                t.start(); // run in background
+                t.join();  // wait until the tread finish
 
+                System.out.println("\nRegistration of "+ participant.getName()+" with ID "+participant.getId()+ " saved successfully.");
+            }
+            else {
+                System.out.println("Back to homepage");
+            }
 
         } catch (InvalidParticipantException e) {
             // If survey or any values are invalid

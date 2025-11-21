@@ -61,6 +61,11 @@ public class ParticipantRepository {
                 .findFirst();
     }
 
+    //this will return um-modifiable list (no external code cannot change it)
+    public List<Participant> getAll(){
+        return Collections.unmodifiableList(participants);
+    }
+
     //--------------------------------------------------------------------------
     // ------------Internal helpers---------------------------------------------
 
