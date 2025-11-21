@@ -111,14 +111,7 @@ public class ParticipantController {
             //create Participant object
             Participant participant = new Participant(id, name, email, game, skill, role, score, personalityType);
 
-            //save to CSV using THREAD
-            Thread t = new Thread(() -> {
-                try{
-                    repository.addParticipant(participant);
-                } catch (FileProcessingException e){
-                    System.out.println("Error saving participant: "+ e.getMessage());
-                }
-            });
+            SaveParticipantThread t = new SaveParticipantThread(repository, participant);
 
             t.start(); // run in background
             t.join();  // wait until the tread finish
