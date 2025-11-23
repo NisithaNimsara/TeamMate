@@ -9,14 +9,33 @@ public enum GameType {
     VALORANT,
     OTHER;
 
+
     public static GameType fromString(String value) {
-        if (value == null)
-            return OTHER;
-        try {
-            return GameType.valueOf(value.trim().toUpperCase());
-        }  catch (IllegalArgumentException e) {
-            return OTHER;
+        if (value == null) return OTHER;
+
+        String v = value.trim().toLowerCase();
+
+        switch (v) {
+            case "chess":
+                return CHESS;
+            case "fifa":
+                return FIFA;
+            case "basketball":
+                return BASKETBALL;
+
+            //FOR CS:GO
+            case "cs:go":
+                return CSGO;
+
+            //FOR DOTA 2
+            case "dota 2":
+                return DOTA2;
+
+            case "valorant":
+                return VALORANT;
         }
+
+        return OTHER;
     }
 
     public static GameType getGameType(int value) {
