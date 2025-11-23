@@ -22,6 +22,11 @@ public class Team {
         members.add(member);
     }
 
+    // remove one participant form team
+    public void removeMember(Participant member) {
+        members.remove(member);
+    }
+
     // Calculate the average skill level of all team members
     public double getAverageSkill(){
         if(members.isEmpty()) {
