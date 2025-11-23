@@ -33,8 +33,9 @@ public class OrganizerController {
         boolean running = true;
         while(running){
             System.out.println("\n--- Organizer Menu ---");
-            System.out.println("1. Import participants from system CSV.");
-            System.out.println("2. Import participants from external CSV.");
+            System.out.println("1. Import participants from system CSV. and form Teams");
+            System.out.println("2. Import participants from external CSV. and form Teams");
+            System.out.println("3. view formed Teams");
             System.out.println("0. Back");
             int choice = input.readInt("Select your choice: ");
             switch (choice) {
@@ -44,6 +45,8 @@ public class OrganizerController {
                 case 2:
                     importExternalCSV();
                     break;
+                case 3:
+                    viewTeams();
                 case 0:
                     running = false;
                     break;
@@ -83,9 +86,9 @@ public class OrganizerController {
         teamFormation();
     }
 
-    //this function will form team
+    //this method will form team
     private void teamFormation(){
-        System.out.println("\n--Team Formation--");
+        System.out.println("\n-- Team Formation --");
         //ask team size
         int teamSize = input.readIntInRange("Enter Team Size: ",1,100);
         List<Participant> participants = new ArrayList<>(repository.getAll());
@@ -121,4 +124,18 @@ public class OrganizerController {
         }
     }
 
+
+    //this method will
+    private void viewTeams(){
+        if(currentTeams == null || currentTeams.isEmpty()){
+            System.out.println("No teams available. Form teams first (Using Organizer's Option 1 or 2).");
+            return;
+        }
+
+        System.out.println("\n--- Current Teams ---");
+        for (Team team : currentTeams){
+            System.out.println(team);
+            System.out.println();
+        }
+    }
 }
