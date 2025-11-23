@@ -8,9 +8,4 @@ public class FileProcessingException extends Exception {
     public FileProcessingException(String message) {
         super(message);
     }
-
-    // Constructor: create an exception with a message AND the original cause
-    public FileProcessingException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

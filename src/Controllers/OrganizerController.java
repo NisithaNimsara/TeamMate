@@ -4,6 +4,9 @@ import Models.*;
 import ValidatorHelp.ConsoleInput;
 import ValidatorHelp.FileProcessingException;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -80,6 +83,7 @@ public class OrganizerController {
             System.out.printf("\nImported %d participants, ignored %d.%n", result[0], result[1]);
         }  catch (FileProcessingException e){
             System.out.println("Import Failed: "+e.getMessage());
+            return;
         }
 
         //calling teamFormation()
@@ -136,6 +140,41 @@ public class OrganizerController {
         for (Team team : currentTeams){
             System.out.println(team);
             System.out.println();
+        }
+
+        // Ask whether to export teams or not.
+        int choice = input.readIntInRange("Export teams to CSV? (1=Yes, 0=No): ",0,1);
+        switch (choice){
+            case 1:
+                exportTeams();
+                break;
+        }
+    }
+
+    private void exportTeams(){
+        while (true){
+            String fileName = input.readLine("Enter export file name (e.g., teams.csv): ");
+            if (fileName != null  && fileName.matches("^[A-Za-z0-9+_.-]+\\.csv$")){
+
+                try(FileWriter fw = new FileWriter(fileName); BufferedWriter bw = new BufferedWriter(fw)){
+                    bw.write("TeamId,ParticipantId,Name,Email,Game,Skill,Role,PersonalityScore,PersonalityType\n");
+                    for (Team team : currentTeams){
+                        for(Participant p : team.getMembers()){
+                            bw.write(team.toCSVRow(p));
+                            bw.newLine();
+                        }
+                    }
+                    System.out.println("\nTeams exported Successfully to "+fileName);
+                    break;
+
+                } catch (IOException e){
+                    System.out.println("Export failed: " + e.getMessage());
+                    break;
+                }
+
+            } else {
+                System.out.println("please enter a valid file name extension .\nEg: something.csv");
+            }
         }
     }
 }

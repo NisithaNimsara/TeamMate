@@ -155,7 +155,7 @@ public class ParticipantRepository {
             out.println(p.toCSVRow()); // write CSV row
 
         } catch (IOException e) {
-            throw new FileProcessingException("Failed to write participant to system file", e);
+            throw  new RuntimeException("Failed to write participant to system file", e);
         }
     }
 
@@ -200,7 +200,7 @@ public class ParticipantRepository {
                 }
             }
         } catch (IOException e){
-            throw new FileProcessingException("Error reading external file", e);
+            throw new RuntimeException("Error reading external file", e);
         }
 
         return new int[]{imported, ignored};
