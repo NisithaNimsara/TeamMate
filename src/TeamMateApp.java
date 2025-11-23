@@ -3,6 +3,7 @@ import Controllers.OrganizerController;
 import Controllers.ParticipantController;
 import Models.ParticipantRepository;
 import Models.PersonalityClassifier;
+import Models.TeamBuilder;
 import ValidatorHelp.ConsoleInput;
 
 import java.util.Scanner;
@@ -16,10 +17,11 @@ public class TeamMateApp {
         ConsoleInput input = new ConsoleInput(scanner);
         PersonalityClassifier classifier = new PersonalityClassifier();
         ParticipantRepository repository = new ParticipantRepository(SYSTEM_PARTICIPANT_FILE);
+        TeamBuilder teamBuilder = new TeamBuilder();
 
         //controllers
         ParticipantController participantController = new ParticipantController(classifier, repository, input);
-        OrganizerController organizerController = new OrganizerController(repository, input);
+        OrganizerController organizerController = new OrganizerController(repository, input, teamBuilder);
 
         AppController appController = new AppController(input, participantController, organizerController);
 

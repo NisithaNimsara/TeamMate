@@ -1,0 +1,51 @@
+ID,Name,Email,PreferredGame,SkillLevel,PreferredRole,PersonalityScore,PersonalityType
+P001,Participant_1,user1@university.edu,Chess,2,Strategist,95,Leader
+P002,Participant_2,user2@university.edu,FIFA,5,Attacker,80,Balanced
+P003,Participant_3,user3@university.edu,FIFA,4,Defender,66,Thinker
+P004,Participant_4,user4@university.edu,Basketball,4,Supporter,91,Leader
+P005,Participant_5,user5@university.edu,CS:GO,9,Coordinator,82,Balanced
+P006,Participant_6,user6@university.edu,CS:GO,2,Strategist,57,Thinker
+P007,Participant_7,user7@university.edu,DOTA 2,5,Attacker,93,Leader
+P008,Participant_8,user8@university.edu,Valorant,10,Defender,81,Balanced
+P009,Participant_9,user9@university.edu,CS:GO,6,Supporter,62,Thinker
+P010,Participant_10,user10@university.edu,Valorant,5,Coordinator,96,Leader
+P011,Participant_11,user11@university.edu,Basketball,8,Strategist,84,Balanced
+P012,Participant_12,user12@university.edu,DOTA 2,3,Attacker,63,Thinker
+P013,Participant_13,user13@university.edu,DOTA 2,4,Defender,97,Leader
+P014,Participant_14,user14@university.edu,FIFA,3,Supporter,73,Balanced
+P015,Participant_15,user15@university.edu,DOTA 2,8,Coordinator,66,Thinker
+P016,Participant_16,user16@university.edu,CS:GO,6,Strategist,90,Leader
+P017,Participant_17,user17@university.edu,CS:GO,10,Attacker,77,Balanced
+P018,Participant_18,user18@university.edu,FIFA,3,Defender,51,Thinker
+P019,Participant_19,user19@university.edu,FIFA,9,Supporter,95,Leader
+P020,Participant_20,user20@university.edu,Valorant,3,Coordinator,82,Balanced
+P021,Participant_21,user21@university.edu,FIFA,4,Strategist,64,Thinker
+P022,Participant_22,user22@university.edu,Chess,9,Attacker,97,Leader
+P023,Participant_23,user23@university.edu,CS:GO,3,Defender,87,Balanced
+P024,Participant_24,user24@university.edu,DOTA 2,7,Supporter,63,Thinker
+P025,Participant_25,user25@university.edu,FIFA,9,Coordinator,100,Leader
+P026,Participant_26,user26@university.edu,Chess,8,Strategist,74,Balanced
+P027,Participant_27,user27@university.edu,Chess,6,Attacker,53,Thinker
+P028,Participant_28,user28@university.edu,CS:GO,8,Defender,90,Leader
+P029,Participant_29,user29@university.edu,Basketball,5,Supporter,77,Balanced
+P030,Participant_30,user30@university.edu,CS:GO,4,Coordinator,54,Thinker
+P031,Participant_31,user31@university.edu,Basketball,8,Strategist,97,Leader
+P032,Participant_32,user32@university.edu,DOTA 2,2,Attacker,86,Balanced
+P033,Participant_33,user33@university.edu,FIFA,7,Defender,65,Thinker
+P034,Participant_34,user34@university.edu,FIFA,7,Supporter,91,Leader
+P035,Participant_35,user35@university.edu,Basketball,8,Coordinator,78,Balanced
+P036,Participant_36,user36@university.edu,Chess,9,Strategist,65,Thinker
+P037,Participant_37,user37@university.edu,DOTA 2,8,Attacker,100,Leader
+P038,Participant_38,user38@university.edu,Valorant,1,Defender,78,Balanced
+P039,Participant_39,user39@university.edu,FIFA,5,Supporter,66,Thinker
+P040,Participant_40,user40@university.edu,Chess,9,Coordinator,100,Leader
+P041,Participant_41,user41@university.edu,Basketball,5,Strategist,70,Balanced
+P042,Participant_42,user42@university.edu,DOTA 2,7,Attacker,53,Thinker
+P043,Participant_43,user43@university.edu,DOTA 2,2,Defender,100,Leader
+P044,Participant_44,user44@university.edu,FIFA,6,Supporter,71,Balanced
+P045,Participant_45,user45@university.edu,Chess,2,Coordinator,68,Thinker
+P046,Participant_46,user46@university.edu,CS:GO,5,Strategist,96,Leader
+P047,Participant_47,user47@university.edu,DOTA 2,10,Attacker,78,Balanced
+P048,Participant_48,user48@university.edu,Valorant,6,Defender,65,Thinker
+P049,Participant_49,user49@university.edu,Basketball,3,Supporter,95,Leader
+P050,Participant_50,user50@university.edu,Basketball,5,Coordinator,70,Balanced
