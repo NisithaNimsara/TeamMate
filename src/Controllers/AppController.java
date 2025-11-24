@@ -27,7 +27,6 @@ public class AppController {
             System.out.println("2. Organizer");
             System.out.println("0. Exit");
             int choice = input.readInt("Select your choice: ");
-            logger.info("User selected main menu option: " + choice);
 
             switch (choice) {
                 case 1:

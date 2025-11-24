@@ -3,8 +3,10 @@ package Controllers;
 
 import Models.*;
 import ValidatorHelp.ConsoleInput;
-import ValidatorHelp.FileProcessingException;
 import ValidatorHelp.InvalidParticipantException;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 // This will handles everything related to "Participants".
 public class ParticipantController {
@@ -12,6 +14,8 @@ public class ParticipantController {
     private final PersonalityClassifier classifier;
     private final ParticipantRepository repository;
     private final ConsoleInput input;
+
+    private static final Logger logger = Logger.getLogger(ParticipantController.class.getName());
 
     //Constructor
     public ParticipantController(PersonalityClassifier classifier, ParticipantRepository repository, ConsoleInput input) {
@@ -43,14 +47,16 @@ public class ParticipantController {
                     running = false;
                     break;
                 default:
-                    System.out.println("Invalid choice");
+                    logger.warning("Invalid participant menu choice: " + choice);
             }
         }
+        logger.info("Participant menu closed.");
     }
 
     // handle new registration of participant
     private void newRegistration(){
         try {
+            System.out.println("\n-- New registration --");
             //name
             String name = input.readLine("Enter your name: ");
             //email
@@ -92,7 +98,7 @@ public class ParticipantController {
 
             //--------personality survey----------
             // personality score
-            System.out.println("\nAnswer the following 5 questions: ");
+            System.out.println("\n- Personality survey -\nAnswer the following 5 questions: ");
             System.out.println(" (1= Strongly disagree .. 5=Strongly agree)");
 
             int q1 = input.readIntInRange("I enjoy taking the lead and guiding others during group activities.: ", 1, 5);
@@ -104,7 +110,7 @@ public class ParticipantController {
             int score = classifier.calculateScore(q1, q2, q3, q4, q5);
             // personality type
             PersonalityType personalityType = classifier.classify(score);
-
+            System.out.println("Personality survey completed. Score: " + score + ", Type: " + personalityType);
             int choice = input.readIntInRange("\nDo you want to add this to CSV? (1=Yes, 0=No): ", 0, 1);
 
             if (choice == 1) {
@@ -114,6 +120,7 @@ public class ParticipantController {
                 //create Participant object
                 Participant participant = new Participant(id, name, email, game, skill, role, score, personalityType);
 
+                //Starting SaveParticipantThread
                 SaveParticipantThread t = new SaveParticipantThread(repository, participant);
 
                 t.start(); // run in background
@@ -127,10 +134,10 @@ public class ParticipantController {
 
         } catch (InvalidParticipantException e) {
             // If survey or any values are invalid
-            System.out.println("Invalid survey values: " + e.getMessage());
+            logger.log(Level.WARNING, "Invalid participant data during registration.", e.getMessage());
         } catch (InterruptedException e) {
             // If thread is interrupted (rare but must handle)
-            System.out.println("Thread interrupted: " + e.getMessage());
+            logger.log(Level.SEVERE, "Thread interrupted while saving participant.", e.getMessage());
         }
     }
 
@@ -140,14 +147,12 @@ public class ParticipantController {
 
         // Check if this email exists in the system
         if (!repository.isEmailTaken(email)) {
-            System.out.println("No participant found with this email.");
+            logger.info("No participant found with this email: " + email);
             return; // nothing more to do
         }
 
         // Search and display participant details
-        repository.findByEmail(email).ifPresentOrElse(
-                        p -> System.out.println(p.toString()),
-                        () -> System.out.println("No participant found.") // should not happen
+        repository.findByEmail(email).ifPresentOrElse(p -> System.out.println(p.toString()), () -> logger.warning("Email marked as taken but findByEmail returned empty for: " + email)// should not happen
                 );
     }
 
