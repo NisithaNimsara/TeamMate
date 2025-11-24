@@ -1,12 +1,15 @@
 package Controllers;
 
-import Models.ParticipantRepository;
 import ValidatorHelp.ConsoleInput;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AppController {
     private final ConsoleInput input;
     private final ParticipantController participantController;
     private final OrganizerController organizerController;
+
+    private static final Logger logger = Logger.getLogger(AppController.class.getName());
 
     public AppController(ConsoleInput input, ParticipantController participantController, OrganizerController organizerController) {
         this.input = input;
@@ -24,6 +27,7 @@ public class AppController {
             System.out.println("2. Organizer");
             System.out.println("0. Exit");
             int choice = input.readInt("Select your choice: ");
+            logger.info("User selected main menu option: " + choice);
 
             switch (choice) {
                 case 1:
@@ -40,7 +44,7 @@ public class AppController {
                     break;
                 default:
                     // Any other number is invalid
-                    System.out.println("Invalid choice.");
+                    logger.warning("Invalid menu choice entered: (" + choice + ") Please try again.");
             }
         }
     }
