@@ -1,218 +1,183 @@
 package Models;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-// This class forms balanced teams
+//this class responsible for form teams
 public class TeamBuilder {
 
-    private static final int MAX_SAME_GAME_PER_TEAM = 2; // max 2 players preferring same game
-    private static final int MAX_SAME_ROLE_PER_TEAM = 3; // avoid too many same roles
-    private static final int MAX_LEADERS_PER_TEAM = 1;   // only 1 leader per team
-    private static final int MAX_THINKERS_PER_TEAM = 2;  // max 2 thinkers per team
+    private static final int MAX_SAME_GAME = 2;
+    private static int MAX_SAME_ROLE;
 
-
-    //MAIN method
-    public List<Team> formTeams(List<Participant> members, int teamSize) {
-
-        //team size validation
-        if (teamSize <=0){
-            throw new IllegalArgumentException("Team size must be positive");
+    public TeamFormationResult formTeams(List<Participant> allParticipants, int teamSize) {
+        if (teamSize > 5) {
+            MAX_SAME_ROLE = 5;
+        }else {
+            MAX_SAME_ROLE = 3;
         }
 
-        //get a copy of input list(avoid modify original)
-        List<Participant> all = new ArrayList<>(members);
-        if (all.isEmpty()){
-            return new ArrayList<>();
-        }
+        List<Team> teams = new ArrayList<>();
+        List<Participant> leftovers = new ArrayList<>();
 
-        // Calculate global average skill to help balance team strengths
-        double globalAverageSkill = all.stream().mapToInt(Participant::getSkillLevel).average().orElse(0.0);
-
-
-        //split personality groups------------------------------------------------------------
-        List<Participant> leaders = new ArrayList<>();
+        //create separate lists based on Personality
+        List<Participant> leaders_temp = new ArrayList<>();
         List<Participant> thinkers = new ArrayList<>();
         List<Participant> balanced = new ArrayList<>();
 
-        for (Participant p : all){
-            if (p.getPersonalityType() == PersonalityType.LEADER){
-                leaders.add(p);
-            } else if (p.getPersonalityType() == PersonalityType.THINKER) {
+        //Separate based on Personality
+        for (Participant p : allParticipants) {
+            if (p.getPersonalityType() == PersonalityType.LEADER)
+                leaders_temp.add(p);
+            else if (p.getPersonalityType() == PersonalityType.THINKER)
                 thinkers.add(p);
-            } else {
-                balanced.add(p);
-            }
+            else
+                balanced.add(p); //(both BALANCED and OTHERS)
         }
 
-        //thins meke the placement random
-        Collections.shuffle(leaders);
+        // Shuffle for randomness before we start matching
+        Collections.shuffle(leaders_temp);
         Collections.shuffle(thinkers);
         Collections.shuffle(balanced);
 
-        // Create the required number of empty teams
-        int teamCount = (int) Math.ceil(all.size()/ (double)teamSize);
-        List<Team> teams = new ArrayList<>();
-        for (int i = 1; i <= teamCount; i++){
-            teams.add(new Team(i));
+        //convert to deque(easy for remove - pop)
+        Deque<Participant> leaders = new ArrayDeque<>(leaders_temp);
+
+        // determine Max Possible Teams
+        int maxTeamsByLeader = leaders.size(); //
+        int maxTeamsByThinker = thinkers.size(); //
+        int maxTeamsByTotal = allParticipants.size() / teamSize;
+
+        //final team count is the smallest of these constraints
+        int teamCount = Math.min(maxTeamsByLeader, Math.min(maxTeamsByThinker, maxTeamsByTotal));
+
+        //initialize every team with 1 Leader
+        for (int i = 1; i <= teamCount; i++) {
+            Team t = new Team(i);
+            t.addMember(leaders.pop()); //pop from laders
+            teams.add(t); // And add to a team
+        }
+        //all extra leaders go to leftovers
+        leftovers.addAll(leaders);
+
+        //assign mandatory 1 thinker to each team
+        Iterator<Team> teamIt = teams.iterator(); //create iterator to loop through teams safely
+        while (teamIt.hasNext()) {
+            Team t = teamIt.next(); //get the next team
+
+            //find a thinker that fits the game and role constraints
+            Participant bestThinker = findBestFit(t, thinkers, null);
+
+            if (bestThinker != null) {
+                t.addMember(bestThinker);
+                thinkers.remove(bestThinker);
+            } else {
+                //if no thinker fits, the team is invalid, so move members to leftovers
+                leftovers.addAll(t.getMembers());
+                teamIt.remove(); // Remove the invalid team from the list
+            }
         }
 
-        // Phase 1 - Place leaders first----------
-        for (Participant leader : leaders){
+        //calculate average skill of remaining players to try and balance teams
+        double targetSkill = calculatePoolAverage(thinkers, balanced);
 
-            // Try with full caps
-            Team chosen = chooseTeam(leader,teams,teamSize,globalAverageSkill,true,true);
+        //fill the remaining spots in each team
+        for (Team t : teams) {
+            // Keep adding members until the team reaches the required size
+            while (t.getMembers().size() < teamSize) {
+                Participant candidate = null;
 
-            // If cannot place respecting all caps, relax personality rule
-            if (chosen == null){
-                chosen = chooseTeam(leader,teams,teamSize,globalAverageSkill,true,false);
-            }
-
-            if (chosen != null){
-                chosen.addMember(leader);
-            }
-        }
-
-        // Phase 2 - Ensure at least one THINKER in every team--------
-        for (Team team : teams){
-
-            // If no thinkers left, stop
-            if (thinkers.isEmpty()) break;
-
-            // Check if team already has a thinker
-            boolean hasThinker = team.getMembers().stream().allMatch(p -> p.getPersonalityType() == PersonalityType.THINKER);
-
-            if (!hasThinker){
-
-                Participant selected = null;
-
-                // try thinkers respecting all caps
-                for (Participant thinker : thinkers){
-                    if (respectsGameAndRoleCaps(team, thinker) && respectsPersonalityCaps(team, thinker)){
-                        selected = thinker;
-                        break;
-                    }
+                // If no thinker was added, try to add a Balanced player
+                if (!balanced.isEmpty()) {
+                    candidate = findBestFit(t, balanced, targetSkill); // Find best fit balanced player
+                    if (candidate != null)
+                        balanced.remove(candidate); // Remove from balanced's list if found
                 }
 
-                // if none fits personality caps,
-                if (selected == null){
-                    for (Participant thinker : thinkers){
-                        if (respectsGameAndRoleCaps(team, thinker)) {
-                            selected = thinker;
-                            break;
-                        }
-                    }
+                //Priority: Try to add second Thinker if constraints allow
+                if (candidate == null && t.getPersonalityCount(PersonalityType.THINKER) < 2 && !thinkers.isEmpty()) {
+                    candidate = findBestFit(t, thinkers, targetSkill); // Find best fit thinker
+                    if (candidate != null)
+                        thinkers.remove(candidate); // Remove from thinker's list if found
                 }
 
-                // add thinker if not found ans space exist
-                if (selected != null && team.getMembers().size() < teamSize){
-                    team.addMember(selected);
-                    thinkers.remove(selected);
+                // If a valid candidate was found, add them to the team
+                if (candidate != null) {
+                    t.addMember(candidate);
+                } else {
+                    break;
                 }
             }
         }
 
-        //Phase 3 - place remaining thinkers
-        for (Participant thinker : new ArrayList<>(thinkers)) {
-
-            Team chosen =  chooseTeam(thinker,teams,teamSize,globalAverageSkill,true,true);
-
-            //if no perfect team found
-            if (chosen == null){
-                chosen =  chooseTeam(thinker,teams,teamSize,globalAverageSkill,true,false);
-            }
-
-            if (chosen != null){
-                chosen.addMember(thinker);
-                thinkers.remove(thinker);
+        //Finally, Remove teams that are not full
+        Iterator<Team> finalIt = teams.iterator();
+        while (finalIt.hasNext()) {
+            Team t = finalIt.next();
+            //Check if team size is less than required
+            if (t.getMembers().size() < teamSize) {
+                leftovers.addAll(t.getMembers()); //move all members to leftovers
+                finalIt.remove(); //delete the team
             }
         }
 
-        //Phase 4 - place balanced participants
-        List<Participant> remaing = new ArrayList<>();
-        remaing.addAll(thinkers);   // any leftover thinkers
-        remaing.addAll(balanced);   // add all balanced players
+        //add all unused players to leftover's list
+        leftovers.addAll(thinkers);
+        leftovers.addAll(balanced);
 
-        for (Participant p : remaing){
-
-            // First try respecting role, but not strict personality
-            Team chosen = chooseTeam(p,teams,teamSize,globalAverageSkill,true,false);
-
-            // If still no place, final attempt ignoring all except size
-            if (chosen == null){
-                chosen = chooseTeam(p,teams,teamSize,globalAverageSkill,false,false);
-            }
-
-            if (chosen != null){
-                chosen.addMember(p);
-            }
-        }
-        return teams;
+        // Return the final result, valid teams and leftover participants
+        return new TeamFormationResult(teams, leftovers);
     }
 
+    //------Helper Methods--------
 
-    //-----------------------------------------------------------------------------------------------
-    // method for pick best team for a participant
-    private Team chooseTeam(Participant p,
-                            List<Team> teams,
-                            int teamSize,
-                            double globalAverageSkill,
-                            boolean enforceGameRoleCaps,
-                            boolean enforcePersonalityCaps) {
+    //Finds the best participant from a list that fits
+    private Participant findBestFit(Team team, List<Participant> candidates, Double targetSkill) {
 
-        Team beat = null;
-        double bestScore = Double.MAX_VALUE;
+        Participant best = null;
+        double minDiff = Double.MAX_VALUE; // Start with a very high difference value
 
-        for (Team t : teams){
-            //Skip full teams
-            if (t.getMembers().size() >= teamSize) continue;
+        for (Participant participant : candidates) {
+            //check if adding this participant exceeds the MAX_SAME_GAME(2) limit
+            if (team.getGameCount(participant.getPreferredGame()) >= MAX_SAME_GAME)
+                continue;
+            //check if adding this participant exceeds the MAX_SAME_ROLE(3) limit
+            if (team.getRoleCount(participant.getPreferredRole()) >= MAX_SAME_ROLE)
+                continue;
 
-            // Skip if game/role rules broken
-            if (enforceGameRoleCaps && !respectsGameAndRoleCaps(t, p)) continue;
+            //skill Balance logic
+            if (targetSkill != null) {
+                //calculate current total skill of the team
+                double currentTeamSum = team.getAverageSkill() * team.getMembers().size();
+                //calculate what the new average would be if we added this person
+                double newAvg = (currentTeamSum + participant.getSkillLevel()) / (team.getMembers().size() + 1);
 
-            // Skip if personality caps broken
-            if (enforcePersonalityCaps && !respectsPersonalityCaps(t, p)) continue;
-
-            //simple score method
-            int size = t.getMembers().size();
-            double avgSkill = t.getAverageSkill();
-            double skillDifference = Math.abs(avgSkill - globalAverageSkill);
-
-            double score = size * 10.0 + skillDifference;
-
-            if (score < bestScore){
-                bestScore = score;
-                beat = t;
+                //check difference between new average and target average
+                double diff = Math.abs(newAvg - targetSkill);
+                if (diff < minDiff) {
+                    minDiff = diff; //update minimum difference
+                    best = participant; //set this person as the best candidate so far
+                }
+            } else {
+                return participant; //return the first valid participant
             }
         }
-
-        return beat;
+        return best;
     }
 
-    // Check game and role caps
-    private boolean respectsGameAndRoleCaps(Team t, Participant p) {
-
-        if (t.getGameCount(p.getPreferredGame()) >= MAX_SAME_GAME_PER_TEAM) return false;
-        if (t.getRoleCount(p.getPreferredRole()) >= MAX_SAME_ROLE_PER_TEAM) return false;
-
-        return true;
-    }
-
-
-    // Check personality caps
-    private boolean respectsPersonalityCaps(Team t, Participant p) {
-        PersonalityType type = p.getPersonalityType();
-
-        if (type == PersonalityType.LEADER &&
-                t.getPersonalityCount(PersonalityType.LEADER) >= MAX_LEADERS_PER_TEAM)
-            return false;
-
-        if (type == PersonalityType.THINKER &&
-                t.getPersonalityCount(PersonalityType.THINKER) >= MAX_THINKERS_PER_TEAM)
-            return false;
-
-        // BALANCED has no cap
-        return true;
+    //calculates the average skill level of two lists combined
+    private double calculatePoolAverage(List<Participant> list1, List<Participant> list2) {
+        double sum = 0;
+        int count = 0;
+        //sum up skill of list1
+        for (Participant p : list1) {
+            sum += p.getSkillLevel();
+            count++;
+        }
+        //sum up skill of list2
+        for (Participant p : list2) {
+            sum += p.getSkillLevel();
+            count++;
+        }
+        //return average (prevent division by zero)
+        return count == 0 ? 0 : sum / count;
     }
 }

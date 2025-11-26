@@ -2,15 +2,15 @@ package Models;
 
 import java.util.List;
 
-// This class represents a dedicated Thread that will run team formation
+//this class runs the team formation in a background
 public class TeamFormationThread extends Thread {
 
-    private final TeamBuilder teamBuilder;                 // logic used to form teams
-    private final List<Participant> participants;          // list of all participants
-    private final int teamSize;                            // desired team size
+    private final TeamBuilder teamBuilder;
+    private final List<Participant> participants;
+    private final int teamSize;
 
-    private List<Team> result;                             // will store the generated teams
-    private Exception error;                               // will store any error that happens
+    private TeamFormationResult result;
+    private Exception error;
 
     //constructor
     public TeamFormationThread(TeamBuilder teamBuilder, List<Participant> participants, int teamSize) {
@@ -19,25 +19,20 @@ public class TeamFormationThread extends Thread {
         this.teamSize = teamSize;
     }
 
-    // This method runs when the thread is started.
-    // Heavy work (team formation) happens here, not on the main thread.
     @Override
     public void run() {
         try {
-            // perform team formation
             result = teamBuilder.formTeams(participants, teamSize);
         } catch (Exception e) {
-            // if anything goes wrong, store the error
             error = e;
         }
     }
 
-    // this method will give the teams
-    public List<Team> getResult() {
+    //getters---------
+    public TeamFormationResult getResult() {
         return result;
     }
 
-    // this will check if and exception occurred?
     public Exception getError() {
         return error;
     }

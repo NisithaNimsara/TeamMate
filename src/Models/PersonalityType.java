@@ -3,14 +3,15 @@ package Models;
 public enum PersonalityType {
     LEADER,
     BALANCED,
-    THINKER;
+    THINKER,
+    OTHER;
 
-    public static PersonalityType fromString(String value){
-        if(value == null)
+    public static PersonalityType fromString(String value) {
+        if (value == null)
             return null;
-        try{
+        try {
             return PersonalityType.valueOf(value.trim().toUpperCase());
-        } catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return null;
         }
     }

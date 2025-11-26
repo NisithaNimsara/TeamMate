@@ -9,51 +9,44 @@ public enum GameType {
     VALORANT,
     OTHER;
 
-
     public static GameType fromString(String value) {
-        if (value == null) return OTHER;
+        if (value == null)
+            return OTHER;
 
-        String v = value.trim().toLowerCase();
+        value = value.trim().toLowerCase();
 
-        switch (v) {
-            case "chess":
-                return CHESS;
-            case "fifa":
-                return FIFA;
-            case "basketball":
-                return BASKETBALL;
-
-            //FOR CS:GO
-            case "cs:go":
-                return CSGO;
-
-            //FOR DOTA 2
-            case "dota 2":
-                return DOTA2;
-
-            case "valorant":
-                return VALORANT;
-        }
-
-        return OTHER;
+        if (value.equals("chess"))
+            return CHESS;
+        else if (value.equals("fifa"))
+            return FIFA;
+        else if (value.equals("basketball"))
+            return BASKETBALL;
+        else if (value.equals("cs:go") || value.equals("csgo"))
+            return CSGO;
+        else if (value.equals("dota 2") || value.equals("dota2"))
+            return DOTA2;
+        else if (value.equals("valorant"))
+            return VALORANT;
+        else
+            return OTHER;
     }
 
-    public static GameType getGameType(int value) {
-        if (value == 1) {
-            return GameType.CHESS;
-        } else if (value == 2) {
-            return GameType.FIFA;
-        } else if (value == 3) {
-            return GameType.BASKETBALL;
-        } else if (value == 4) {
-            return GameType.CSGO;
-        } else if (value == 5) {
-            return GameType.DOTA2;
-        } else if (value == 6) {
-            return GameType.VALORANT;
-        } else {
-            return GameType.OTHER;
+    public static GameType fromInt(int value) {
+        switch (value) {
+            case 1:
+                return GameType.CHESS;
+            case 2:
+                return GameType.FIFA;
+            case 3:
+                return GameType.BASKETBALL;
+            case 4:
+                return GameType.CSGO;
+            case 5:
+                return GameType.DOTA2;
+            case 6:
+                return GameType.VALORANT;
+            default:
+                return GameType.OTHER;
         }
     }
-
 }

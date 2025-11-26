@@ -2,85 +2,64 @@ package Models;
 
 import java.util.*;
 
-// A Team represents one group of participants.
+//this clas represents a(one) formed team.
 public class Team {
-    private final int teamId;  //unique team ID
-    private final List<Participant> members =  new ArrayList<>(); // team members
+    private final int teamId;//unique team ID
+    private final List<Participant> members = new ArrayList<>(); //team members
 
     //constructor
     public Team(int teamId) {
         this.teamId = teamId;
     }
 
-    //this will return members but prevent modifications
+    // add one participant to the team
+    public void addMember(Participant p) {
+        members.add(p);
+    }
+
+    //this will return unmodifiable members
     public List<Participant> getMembers() {
         return Collections.unmodifiableList(members);
     }
 
-    // add one participant to the team
-    public void addMember(Participant member) {
-        members.add(member);
+    //calculates average skill of everyone in the team
+    public double getAverageSkill() {
+        return members.stream().mapToInt(Participant::getSkillLevel).average().orElse(0.0);
     }
 
-    // remove one participant form team
-    public void removeMember(Participant member) {
-        members.remove(member);
+    //Helpers for the TeamBuilder logic
+    //checks how many people prefer a specific game
+    public long getGameCount(GameType type) {
+        return members.stream().filter(p -> p.getPreferredGame() == type).count();
     }
 
-    // Calculate the average skill level of all team members
-    public double getAverageSkill(){
-        if(members.isEmpty()) {
-            return 0;
-        } else {
-            return members.stream().mapToInt(Participant::getSkillLevel).average().orElse(0.0);
-        }
+    //checks how many people prefer a specific role
+    public long getRoleCount(RoleType type) {
+        return members.stream().filter(p -> p.getPreferredRole() == type).count();
     }
 
-    // Count how many members prefer a certain game
-    public long getGameCount(GameType gameType) {
-        return members.stream().filter(p -> p.getPreferredGame() == gameType).count();
+    //checks how many people have a specific personality
+    public long getPersonalityCount(PersonalityType type) {
+        return members.stream().filter(p -> p.getPersonalityType() == type).count();
     }
 
-    // Count how many members have a certain role
-    public long getRoleCount(RoleType roleType) {
-        return members.stream().filter(p -> p.getPreferredRole() == roleType).count();
-    }
-
-    // Count how many members have a certain personality type
-    public long getPersonalityCount(PersonalityType personalityType) {
-        return members.stream().filter(p -> p.getPersonalityType() == personalityType).count();
-    }
-
-    // Convert one participant into a CSV
+    //Formats data for Export
     public String toCSVRow(Participant p) {
         return teamId + "," + p.toCSVRow();
     }
 
-    // Create a readable version
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Team #").append(teamId)
-                .append(" | size=").append(members.size())
-                .append(" | avgSkill=")
-                .append(String.format(Locale.US, "%.2f", getAverageSkill()))
-                .append("\nMembers:");
+        sb.append("\nTeamId: ").append(teamId)
+                .append(" | Size: ").append(members.size()).
+                append(" | AvgSkill: ").append(String.format(Locale.US,"%.2f",getAverageSkill()))
+                .append("\nMembers: ");
 
         for (Participant p : members) {
-            sb.append("\n  - ").append(p);
+            sb.append("\n - ").append(p);
         }
-
         return sb.toString();
     }
-
-
-
-
-
-
-
-
-
-
 }
