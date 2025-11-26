@@ -4,6 +4,8 @@ import Models.*;
 import ValidatorHelp.ConsoleInput;
 import java.io.*;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class OrganizerController {
     private final ParticipantRepository repo;
@@ -11,6 +13,7 @@ public class OrganizerController {
     private final ConsoleInput input;
     private List<Team> currentTeams;
     private List<Participant> leftovers;
+    private static final Logger logger = Logger.getLogger(OrganizerController.class.getName());
 
     public OrganizerController(ParticipantRepository repo, TeamBuilder builder, ConsoleInput input) {
         this.repo = repo;
@@ -45,7 +48,7 @@ public class OrganizerController {
             int[] res = repo.importExternalFile(file+".csv");
             System.out.printf("\nImported %d participants, ignored %d.", res[0], res[1]);
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            logger.log(Level.WARNING, "Import CSV failed!", e.getMessage());
         }
     }
 
@@ -72,7 +75,7 @@ public class OrganizerController {
             }
 
         } catch (Exception e) {
-            System.out.println("Team Formation failed: " + e.getMessage());
+            logger.log(Level.WARNING, "Formation failed!", e.getMessage());
         }
     }
 
@@ -96,7 +99,7 @@ public class OrganizerController {
                 }
                 System.out.println("\nTeams exported Successfully to "+file+".csv");
             } catch (IOException e) {
-                System.out.println("Export failed.");
+                logger.log(Level.WARNING, "Export CSV failed!", e.getMessage());
             }
         }
     }

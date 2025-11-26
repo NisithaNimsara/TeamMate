@@ -61,7 +61,7 @@ public class ParticipantRepository {
                 }
             }
         } catch (IOException e) {
-            throw new FileProcessingException("Error reading external file" + e.getMessage());
+            throw new FileProcessingException("Error reading external file: " + e.getMessage());
         }
         return new int[]{imported, ignored};
     }
