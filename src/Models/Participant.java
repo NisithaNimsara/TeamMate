@@ -1,8 +1,7 @@
 package Models;
-import java.util.Objects;
 
 // This class represents a Participant.
-// This store all the information collected from the survey and CSV file.
+// Knows how to store data and convert it to CSV.
 public class Participant {
     private final String id;
     private final String name;
@@ -13,7 +12,7 @@ public class Participant {
     private final int personalityScore;
     private final PersonalityType personalityType;
 
-    // Constructor
+    //constructor
     public Participant(String id,
                        String name,
                        String email,
@@ -32,30 +31,56 @@ public class Participant {
         this.personalityType = personalityType;
     }
 
-    // Getters (only read access)
-    public String getId() {
-        return id;
+    // Getters
+    public String getId() { return id; }
+    public String getName() { return name; }
+    public String getEmail() { return email; }
+    public GameType getPreferredGame() { return preferredGame; }
+    public int getSkillLevel() { return skillLevel; }
+    public RoleType getPreferredRole() { return preferredRole; }
+    public int getPersonalityScore() { return personalityScore; }
+    public PersonalityType getPersonalityType() { return personalityType; }
+
+    // Parse one CSV line into a Participant object.
+    public static Participant parseLine(String csvLine) {
+        String[] parts = csvLine.split(",");
+        if (parts.length < 8)
+            return null;
+
+        // Skip header line
+        if (parts[0].equalsIgnoreCase("ID"))
+            return null;
+
+        try {
+            String id = parts[0].trim();
+            String name = parts[1].trim();
+            String email = parts[2].trim();
+            GameType game = GameType.fromString(parts[3]);
+            int skill = Integer.parseInt(parts[4].trim());
+            RoleType role = RoleType.fromString(parts[5]);
+            int score = Integer.parseInt(parts[6].trim());
+            PersonalityType type = PersonalityType.fromString(parts[7]);
+
+            if (type == null)
+                type = PersonalityType.BALANCED; //handle to not get crash
+
+            return new Participant(id, name, email, game, skill, role, score, type);
+        } catch (Exception e) {
+            return null; // Return null if parsing fail
+        }
     }
-    public String getName() {
-        return name;
-    }
-    public String getEmail() {
-        return email;
-    }
-    public GameType getPreferredGame() {
-        return preferredGame;
-    }
-    public int getSkillLevel() {
-        return skillLevel;
-    }
-    public RoleType getPreferredRole() {
-        return preferredRole;
-    }
-    public int getPersonalityScore() {
-        return personalityScore;
-    }
-    public PersonalityType getPersonalityType() {
-        return personalityType;
+
+    // Convert into a csv compatible row
+    public String toCSVRow() {
+        return String.join(",",
+                id,
+                name,
+                email,
+                preferredGame.name(),
+                String.valueOf(skillLevel),
+                preferredRole.name(),
+                String.valueOf(personalityScore),
+                personalityType.name());
     }
 
     // To display participant data clearly in console output.
@@ -69,19 +94,5 @@ public class Participant {
                 " | Role: " + getPreferredRole() +
                 " | PersonalityScore: " + getPersonalityScore() +
                 " | PersonalityType: " + getPersonalityType();
-    }
-
-    // Convert the object back into a CSV-compatible row
-    public String toCSVRow() {
-        return String.join(",",
-                id,
-                name,
-                email,
-                preferredGame.name(),
-                String.valueOf(skillLevel),
-                preferredRole.name(),
-                String.valueOf(personalityScore),
-                personalityType.name()
-        );
     }
 }

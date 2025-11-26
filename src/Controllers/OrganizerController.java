@@ -2,178 +2,116 @@ package Controllers;
 
 import Models.*;
 import ValidatorHelp.ConsoleInput;
-import ValidatorHelp.FileProcessingException;
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.io.*;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-// This controller handles all actions that an Organizer can do:
-// Load/import participants from CSV
-// Form teams
-// View and export formed teams
 public class OrganizerController {
-    private final ParticipantRepository repository;  // This will access to participants data
+    private final ParticipantRepository repo;
+    private final TeamBuilder builder;
     private final ConsoleInput input;
-    private final TeamBuilder teamBuilder;
+    private List<Team> currentTeams;
+    private List<Participant> leftovers;
 
-    //store the teams formed
-    private List<Team> currentTeams = new ArrayList<>();
-
-    //Constructor
-    public OrganizerController(ParticipantRepository repository, ConsoleInput input,  TeamBuilder teamBuilder) {
-        this.repository = repository;
+    public OrganizerController(ParticipantRepository repo, TeamBuilder builder, ConsoleInput input) {
+        this.repo = repo;
+        this.builder = builder;
         this.input = input;
-        this.teamBuilder = teamBuilder;
-
     }
-    // Organizer menu.
-    public void organizerMenu(ConsoleInput input){
-        boolean running = true;
-        while(running){
+
+    public void showMenu() {
+        while (true) {
             System.out.println("\n--- Organizer Menu ---");
-            System.out.println("1. Import participants from system CSV. and form Teams");
-            System.out.println("2. Import participants from external CSV. and form Teams");
-            System.out.println("3. view formed Teams");
+            System.out.println("1. Import External CSV");
+            System.out.println("2. Form Teams");
+            System.out.println("3. View and Export Teams");
+            System.out.println("4. View Remaining Participants");
             System.out.println("0. Back");
-            int choice = input.readInt("Select your choice: ");
+
+            int choice = input.readInt("Select your choice: ", 0, 4);
+            if (choice == 0) break;
+
             switch (choice) {
-                case 1:
-                    importSystemCSV();
-                    break;
-                case 2:
-                    importExternalCSV();
-                    break;
-                case 3:
-                    viewTeams();
-                case 0:
-                    running = false;
-                    break;
-                default:
-                    System.out.println("Invalid choice");
+                case 1: importCSV(); break;
+                case 2: formTeams(); break;
+                case 3: viewAndExport(); break;
+                case 4: viewRemaining(); break;
             }
         }
     }
 
-    // Load date from the default system CSV file.
-    public void importSystemCSV(){
-        String fileName = "participants_sample.csv"; //fixed file
-
-        try{
-            int[] result = repository.importFromCsvFile(fileName);
-            System.out.printf("\nImported %d participants, ignored %d.%n", result[0], result[1]);
-        } catch (FileProcessingException e){
-            System.out.println("Import Failed: "+e.getMessage());
+    private void importCSV() {
+        String file = input.readLine("Enter Filename(without extension): ");
+        try {
+            int[] res = repo.importExternalFile(file+".csv");
+            System.out.printf("\nImported %d participants, ignored %d.", res[0], res[1]);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
-
-        //calling teamFormation()
-        teamFormation();
     }
 
-    // load data from given CSV file.
-    public void importExternalCSV(){
-        String fileName = input.readLine("Enter external CSV file name to import: ");
-
-        try{
-            int[] result = repository.importFromCsvFile(fileName);
-            System.out.printf("\nImported %d participants, ignored %d.%n", result[0], result[1]);
-        }  catch (FileProcessingException e){
-            System.out.println("Import Failed: "+e.getMessage());
-            return;
-        }
-
-        //calling teamFormation()
-        teamFormation();
-    }
-
-    //this method will form team
-    private void teamFormation(){
+    private void formTeams() {
         System.out.println("\n-- Team Formation --");
-        //ask team size
-        int teamSize = input.readIntInRange("Enter Team Size: ",1,100);
-        List<Participant> participants = new ArrayList<>(repository.getAll());
+        int size = input.readInt("Enter Team Size (2-10): ", 2, 10);
 
-        if(participants.isEmpty()){
-            System.out.println("No participants available for team formation.");
-            return;
-        }
+        TeamFormationThread t = new TeamFormationThread(builder, repo.getAll(), size);
+        t.start();
+        try {
+            t.join();
+            if (t.getError() != null) throw t.getError();
 
-        //assign to a tread using TeamFormationThread class
-        TeamFormationThread thread = new TeamFormationThread(teamBuilder, participants, teamSize);
-        thread.start();
+            TeamFormationResult result = t.getResult();
 
-        try{
-            // wait until background thread finishing forming teams
-            thread.join();
+            this.currentTeams = result.getTeams();
+            this.leftovers = result.getLeftovers();
 
-            if (thread.getError() != null){
-                System.out.println("Error forming teams: "+thread.getError().getMessage());
-                return;
-            }
-
-            currentTeams = thread.getResult();
-            if(currentTeams == null){
-                System.out.println("No teams were formed. ");
-                return;
-            }
-
-            System.out.println("Teams formed successfully. Total teams: "+currentTeams.size());
-
-        } catch (InterruptedException e){
-            System.out.println("Team formation thread interrupted: " + e.getMessage());
-        }
-    }
-
-
-    //this method will
-    private void viewTeams(){
-        if(currentTeams == null || currentTeams.isEmpty()){
-            System.out.println("No teams available. Form teams first (Using Organizer's Option 1 or 2).");
-            return;
-        }
-
-        System.out.println("\n--- Current Teams ---");
-        for (Team team : currentTeams){
-            System.out.println(team);
-            System.out.println();
-        }
-
-        // Ask whether to export teams or not.
-        int choice = input.readIntInRange("Export teams to CSV? (1=Yes, 0=No): ",0,1);
-        switch (choice){
-            case 1:
-                exportTeams();
-                break;
-        }
-    }
-
-    private void exportTeams(){
-        while (true){
-            String fileName = input.readLine("Enter export file name (e.g., teams.csv): ");
-            if (fileName != null  && fileName.matches("^[A-Za-z0-9+_.-]+\\.csv$")){
-
-                try(FileWriter fw = new FileWriter(fileName); BufferedWriter bw = new BufferedWriter(fw)){
-                    bw.write("TeamId,ParticipantId,Name,Email,Game,Skill,Role,PersonalityScore,PersonalityType\n");
-                    for (Team team : currentTeams){
-                        for(Participant p : team.getMembers()){
-                            bw.write(team.toCSVRow(p));
-                            bw.newLine();
-                        }
-                    }
-                    System.out.println("\nTeams exported Successfully to "+fileName);
-                    break;
-
-                } catch (IOException e){
-                    System.out.println("Export failed: " + e.getMessage());
-                    break;
-                }
-
+            if (currentTeams.isEmpty()) {
+                System.out.println("Could not form any valid teams (Constraints likely too strict or lack of Leaders).");
             } else {
-                System.out.println("please enter a valid file name extension .\nEg: something.csv");
+                System.out.println("Success! Formed " + currentTeams.size() + " teams.");
+                System.out.println("Remaining participants: " + leftovers.size());
+            }
+
+        } catch (Exception e) {
+            System.out.println("Team Formation failed: " + e.getMessage());
+        }
+    }
+
+    private void viewAndExport() {
+        if (currentTeams == null) {
+            System.out.println("No teams formed yet.");
+            return;
+        }
+        System.out.println();
+        currentTeams.forEach(System.out::println);
+
+        if (input.readInt("Export to CSV? (1=Yes, 0=No): ", 0, 1) == 1) {
+            String file = input.readLine("Enter export file name(without extension): ");
+
+            try (PrintWriter writer = new PrintWriter(new FileWriter(file+".csv"))) {
+                writer.println("TeamID,ID,Name,Email,Game,Skill,Role,Score,Type");
+                for (Team t : currentTeams) {
+                    for (Participant p : t.getMembers()) {
+                        writer.println(t.toCSVRow(p));
+                    }
+                }
+                System.out.println("\nTeams exported Successfully to "+file+".csv");
+            } catch (IOException e) {
+                System.out.println("Export failed.");
+            }
+        }
+    }
+
+    private void viewRemaining(){
+        if (currentTeams == null){
+            System.out.println("No teams formed yet.");
+            return;
+        }
+        System.out.println("\n-- Remaining participants --");
+        if (leftovers.isEmpty()) {
+            System.out.println("Everyone was placed in a team!");
+        } else {
+            for (Participant p : leftovers) {
+                System.out.println("|ID: "+p.getId()+ " |Name: " +p.getName()+ " |Game: "+p.getPreferredGame()+ " |Skill: "+p.getSkillLevel()+" |Role: "+p.getPreferredRole()+" |Personality Type: "+p.getPersonalityType());
             }
         }
     }

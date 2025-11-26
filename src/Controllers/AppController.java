@@ -1,50 +1,36 @@
 package Controllers;
 
 import ValidatorHelp.ConsoleInput;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class AppController {
     private final ConsoleInput input;
-    private final ParticipantController participantController;
-    private final OrganizerController organizerController;
+    private final ParticipantController pController;
+    private final OrganizerController oController;
 
-    private static final Logger logger = Logger.getLogger(AppController.class.getName());
-
-    public AppController(ConsoleInput input, ParticipantController participantController, OrganizerController organizerController) {
+    public AppController(ConsoleInput input, ParticipantController p, OrganizerController o) {
         this.input = input;
-        this.participantController = participantController;
-        this.organizerController = organizerController;
+        this.pController = p;
+        this.oController = o;
     }
 
-    // This method starts the whole application.
     public void run() {
-        boolean running = true;
-
-        while (running) {
+        while (true) {
             System.out.println("\n--- TeamMate Application ---");
-            System.out.println("1. Participant");
-            System.out.println("2. Organizer");
+            System.out.println("1. Participant Mode");
+            System.out.println("2. Organizer Mode");
             System.out.println("0. Exit");
-            int choice = input.readInt("Select your choice: ");
 
-            switch (choice) {
-                case 1:
-                    // Participant Menu
-                    participantController.participantMenu(input);
-                    break;
-                case 2:
-                    organizerController.organizerMenu(input);
-                    break;
-                case 0:
-                    // Exit the app
-                    running = false;
-                    System.out.println("Exiting application...");
-                    break;
-                default:
-                    // Any other number is invalid
-                    logger.warning("Invalid menu choice entered: (" + choice + ") Please try again.");
-            }
+            int choice = input.readInt("Select your choice: ", 0, 2);
+            if (choice == 0)
+                break;
+
+            if (choice == 1)
+                //Participant Menu
+                pController.showMenu();
+            else
+                //Organizer menu
+                oController.showMenu();
         }
+        System.out.println("Exiting application...");
     }
 }

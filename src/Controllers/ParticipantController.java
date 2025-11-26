@@ -1,159 +1,136 @@
 package Controllers;
 
-
 import Models.*;
-import ValidatorHelp.ConsoleInput;
-import ValidatorHelp.InvalidParticipantException;
-
-import java.util.logging.Level;
+import ValidatorHelp.*;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
-// This will handles everything related to "Participants".
+//this class will handle everything related to "participant".
 public class ParticipantController {
-
+    private final ParticipantRepository repo;
     private final PersonalityClassifier classifier;
-    private final ParticipantRepository repository;
     private final ConsoleInput input;
-
     private static final Logger logger = Logger.getLogger(ParticipantController.class.getName());
 
-    //Constructor
-    public ParticipantController(PersonalityClassifier classifier, ParticipantRepository repository, ConsoleInput input) {
+    //constructor
+    public ParticipantController(ParticipantRepository repo, PersonalityClassifier classifier, ConsoleInput input) {
+        this.repo = repo;
         this.classifier = classifier;
-        this.repository = repository;
         this.input = input;
     }
 
-    // participant menu
-    public void participantMenu(ConsoleInput input){
-        boolean running = true;
+    public void showMenu() {
+        while (true) {
+            //preload Participant repo
+            repo.loadSystemFile();
 
-        while(running){
             System.out.println("\n--- Participant Menu ---");
             System.out.println("1. New registration");
             System.out.println("2. View my details");
             System.out.println("0. Back");
 
-            int choice = input.readInt("Select your choice: ");
-
-            switch (choice) {
-                case 1:
-                    newRegistration();
-                    break;
-                case 2:
-                    viewDetails();
-                    break;
-                case 0:
-                    running = false;
-                    break;
-                default:
-                    logger.warning("Invalid participant menu choice: " + choice);
-            }
+            int choice = input.readInt("Select your choice: ", 0, 2);
+            if (choice == 1) register();
+            if (choice == 2) checkDetails();
+            else break;
         }
-        logger.info("Participant menu closed.");
     }
 
     // handle new registration of participant
-    private void newRegistration(){
+    private void register() {
         try {
-            System.out.println("\n-- New registration --");
-            //name
+            System.out.println("\n-- New Registration --");
             String name = input.readLine("Enter your name: ");
-            //email
-            String email;
-            while (true) {
-                email = input.readLine("Enter your university email: ");
-                boolean validEmail = repository.isValidEmail(email);
-                boolean emailTaken = repository.isEmailTaken(email);
-                if (!validEmail) {
-                    System.out.println("Incorrect email format. Please try again.");
-                } else if (emailTaken) {
-                    System.out.println("This email is already registered. Try another one.");
-                } else {
-                    break;
-                }
-            }
-            // preferred game
-            System.out.println("\nSelect Preferred Game: ");
-            System.out.println("1. CHESS");
-            System.out.println("2. FIFA");
-            System.out.println("3. BASKETBALL");
-            System.out.println("4. CS:GO");
-            System.out.println("5. DOTA 2");
-            System.out.println("6. VALORANT");
-            int choiceG = input.readIntInRange("Choice: ", 1, 6);
-            GameType game = GameType.getGameType(choiceG);
+            String email = getValidEmail();
 
-            // skill
-            int skill = input.readIntInRange("Enter your skill level (1–10): ", 1, 10);
-            // preferred role
-            System.out.println("\nSelect preferred Role: ");
-            System.out.println("1. STRATEGIST");
-            System.out.println("2. ATTACKER");
-            System.out.println("3. DEFENDER");
-            System.out.println("4. SUPPORTER");
-            System.out.println("5. COORDINATOR");
-            int choiceR = input.readIntInRange("Choice", 1, 5);
-            RoleType role = RoleType.getRoleType(choiceR);
+            // Gather details
+            GameType game = GameType.fromInt(input.readInt("\nSelect Preferred Game: " +
+                    "\n1. CHESS" +
+                    "\n2. FIFA" +
+                    "\n3. BASKETBALL" +
+                    "\n4. CS : GO" +
+                    "\n5. DOTA 2" +
+                    "\n6. VALORANT" +
+                    "\nChoice: ", 1, 6));
 
-            //--------personality survey----------
-            // personality score
-            System.out.println("\n- Personality survey -\nAnswer the following 5 questions: ");
-            System.out.println(" (1= Strongly disagree .. 5=Strongly agree)");
+            int skill = input.readInt("Enter your skill level (1–10): ", 1, 10);
+            RoleType role = RoleType.getRoleType(input.readInt("\nSelect preferred Role: " +
+                    "\n1. STRATEGIST  - Focuses on tactics and planning. Keeps the bigger picture in mind during gameplay." +
+                    "\n2. ATTACKER    - Frontline player. Good reflexes, offensive tactics, quick execution." +
+                    "\n3. DEFENDER    - Protects and supports team stability. Good under pressure and team-focused." +
+                    "\n4. SUPPORTER   - Jack-of-all-trades. Adapts roles, ensures smooth coordination." +
+                    "\n5. COORDINATOR - Communication lead. Keeps the team informed and organized in real time." +
+                    "\nChoice: ", 1, 5));
 
-            int q1 = input.readIntInRange("I enjoy taking the lead and guiding others during group activities.: ", 1, 5);
-            int q2 = input.readIntInRange("I prefer analyzing situations and coming up with strategic solutions.: ", 1, 5);
-            int q3 = input.readIntInRange("I work well with others and enjoy collaborative teamwork.: ", 1, 5);
-            int q4 = input.readIntInRange("I am calm under pressure and can help maintain team morale.: ", 1, 5);
-            int q5 = input.readIntInRange("I like making quick decisions and adapting in dynamic situations.: ", 1, 5);
+            // personality survey
+            System.out.println("\n- Personality survey -" +
+                    "\nAnswer the following 5 questions: " +
+                    "\n (1= Strongly disagree .. 5=Strongly agree)");
 
-            int score = classifier.calculateScore(q1, q2, q3, q4, q5);
-            // personality type
-            PersonalityType personalityType = classifier.classify(score);
-            System.out.println("Personality survey completed. Score: " + score + ", Type: " + personalityType);
-            int choice = input.readIntInRange("\nDo you want to add this to CSV? (1=Yes, 0=No): ", 0, 1);
+            int score = classifier.calculateScore(
+                    input.readInt("I enjoy taking the lead and guiding others during group activities.: ", 1, 5),
+                    input.readInt("I prefer analyzing situations and coming up with strategic solutions.: ", 1, 5),
+                    input.readInt("I work well with others and enjoy collaborative teamwork.: ", 1, 5),
+                    input.readInt("I am calm under pressure and can help maintain team morale.: ", 1, 5),
+                    input.readInt("I like making quick decisions and adapting in dynamic situations.: ", 1, 5)
+            );
 
-            if (choice == 1) {
-                // generate id(next id)
-                String id = repository.getNextId();
+            //will return the Personality Type
+            PersonalityType type = classifier.classify(score);
+            if (type == PersonalityType.OTHER) {
+                System.out.println("Sorry Participant, your personality score fell slightly below the the benchmark we required. Good luck for next time.");
+                return;}
 
-                //create Participant object
-                Participant participant = new Participant(id, name, email, game, skill, role, score, personalityType);
+            System.out.println("Personality survey completed. Score: " + score + ", Type: "+ type);
 
-                //Starting SaveParticipantThread
-                SaveParticipantThread t = new SaveParticipantThread(repository, participant);
+            // Q. to append to csv
+            if (input.readInt("\nDo you want to add this to CSV? (1=Yes, 0=No): ", 0, 1) == 1){
+                //if yes
+                //object crete
+                Participant p = new Participant(repo.generateNextId(), name, email, game, skill, role, score, type);
 
-                t.start(); // run in background
-                t.join();  // wait until the tread finish
+                //tread object create
+                SaveParticipantThread t = new SaveParticipantThread(repo, p);
 
-                System.out.println("\nRegistration of "+ participant.getName()+" with ID "+participant.getId()+ " saved successfully.");
-            }
-            else {
-                System.out.println("Back to homepage");
-            }
+                t.start();
+                t.join();
+                //grantee the error count = null
+                if (t.getError() == null)
+                    System.out.println("\nRegistration of "+ p.getName()+" with ID "+p.getId()+ " saved successfully.");
+                else
+                    System.out.println("Error saving: " + t.getError().getMessage());
 
-        } catch (InvalidParticipantException e) {
-            // If survey or any values are invalid
-            logger.log(Level.WARNING, "Invalid participant data during registration.", e.getMessage());
-        } catch (InterruptedException e) {
-            // If thread is interrupted (rare but must handle)
-            logger.log(Level.SEVERE, "Thread interrupted while saving participant.", e.getMessage());
+            } else
+                //if no
+                System.out.println("Back to homepage.");
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE,"Registration failed: ", e.getMessage());
+        }
+    }
+    //validate e-mail
+    private String getValidEmail() {
+        while (true) {
+            String email = input.readLine("Enter your university email: ");
+            //expected : something @ something . something
+            if (!email.contains("@") && !email.contains("."))
+                System.out.println("Incorrect email format. Please try again.");
+            else if (repo.isEmailTaken(email))
+                System.out.println("This email is already registered. Try another one.");
+            else
+                return email;
         }
     }
 
-    // search participant by email
-    private void viewDetails() {
-        String email = input.readLine("Enter your email: ");
 
-        // Check if this email exists in the system
-        if (!repository.isEmailTaken(email)) {
-            logger.info("No participant found with this email: " + email);
-            return; // nothing more to do
-        }
-
-        // Search and display participant details
-        repository.findByEmail(email).ifPresentOrElse(p -> System.out.println(p.toString()), () -> logger.warning("Email marked as taken but findByEmail returned empty for: " + email)// should not happen
-                );
+    // Search and display participant details
+    private void checkDetails() {
+        String email = input.readLine("\nEnter your email: ");
+        repo.findByEmail(email).ifPresentOrElse(
+                //if present
+                System.out::println,
+                //else
+                () -> logger.info("No participant found with this email: "+ email)
+        );
     }
-
 }
