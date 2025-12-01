@@ -113,7 +113,7 @@ public class ParticipantController {
         while (true) {
             String email = input.readLine("Enter your university email: ");
             //expected : something @ something . something
-            if (!email.contains("@") && !email.contains("."))
+            if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9+_.-]+$"))
                 System.out.println("Incorrect email format. Please try again.");
             else if (repo.isEmailTaken(email))
                 System.out.println("This email is already registered. Try another one.");

@@ -68,7 +68,7 @@ public class OrganizerController {
             this.leftovers = result.getLeftovers();
 
             if (currentTeams.isEmpty()) {
-                System.out.println("Could not form any valid teams (Constraints likely too strict or lack of Leaders).");
+                System.out.println("Could not form any valid teams.");
             } else {
                 System.out.println("Success! Formed " + currentTeams.size() + " teams.");
                 System.out.println("Remaining participants: " + leftovers.size());
