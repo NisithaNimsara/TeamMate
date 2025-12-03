@@ -10,6 +10,7 @@ public class TeamMateApp {
     private static final Logger logger = Logger.getLogger(TeamMateApp.class.getName());
 
     public static void main(String[] args) {
+        logger.info("Starting TeamMate application");
         try {
             //Initialize Helpers
             ConsoleInput input = new ConsoleInput(new Scanner(System.in));
