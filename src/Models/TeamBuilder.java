@@ -5,14 +5,14 @@ import java.util.*;
 //this class responsible for form teams
 public class TeamBuilder {
 
-    private static final int MAX_SAME_GAME = 2;
-    private static int MAX_SAME_ROLE;
+    private static final int similarGames = 2;
+    private static int similarRoles;
 
     public TeamFormationResult formTeams(List<Participant> allParticipants, int teamSize) {
         if (teamSize > 5) {
-            MAX_SAME_ROLE = 5;
+            similarRoles = 5;
         }else {
-            MAX_SAME_ROLE = 3;
+            similarRoles = 3;
         }
 
         List<Team> teams = new ArrayList<>();
@@ -77,7 +77,7 @@ public class TeamBuilder {
         }
 
         //calculate average skill of remaining players to try and balance teams
-        double targetSkill = calculatePoolAverage(thinkers, balanced);
+        double targetSkill = calculateListsAverage(thinkers, balanced);
 
         //fill the remaining spots in each team
         for (Team t : teams) {
@@ -137,10 +137,10 @@ public class TeamBuilder {
 
         for (Participant participant : candidates) {
             //check if adding this participant exceeds the MAX_SAME_GAME(2) limit
-            if (team.getGameCount(participant.getPreferredGame()) >= MAX_SAME_GAME)
+            if (team.getGameCount(participant.getPreferredGame()) >= similarGames)
                 continue;
             //check if adding this participant exceeds the MAX_SAME_ROLE(3) limit
-            if (team.getRoleCount(participant.getPreferredRole()) >= MAX_SAME_ROLE)
+            if (team.getRoleCount(participant.getPreferredRole()) >= similarRoles)
                 continue;
 
             //skill Balance logic
@@ -164,7 +164,7 @@ public class TeamBuilder {
     }
 
     //calculates the average skill level of two lists combined
-    private double calculatePoolAverage(List<Participant> list1, List<Participant> list2) {
+    private double calculateListsAverage(List<Participant> list1, List<Participant> list2) {
         double sum = 0;
         int count = 0;
         //sum up skill of list1

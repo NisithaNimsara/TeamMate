@@ -4,7 +4,7 @@ import ValidatorHelp.FileProcessingException;
 public class SaveParticipantThread extends Thread {
     private final ParticipantRepository repo;
     private final Participant participant;
-    private Exception error;
+    private FileProcessingException error;
 
     //constructor
     public SaveParticipantThread(ParticipantRepository repo, Participant participant) {
@@ -21,6 +21,6 @@ public class SaveParticipantThread extends Thread {
         }
     }
 
-    public Exception getError() {
+    public FileProcessingException getError() {
         return error; }
 }

@@ -34,6 +34,7 @@ public class TeamFormationThread extends Thread {
     }
 
     public Exception getError() {
+
         return error;
     }
 }
