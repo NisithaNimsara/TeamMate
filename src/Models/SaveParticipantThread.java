@@ -1,5 +1,6 @@
 package Models;
 import ValidatorHelp.FileProcessingException;
+
 //This thread is responsible for saving ONE participant in the background.
 public class SaveParticipantThread extends Thread {
     private final ParticipantRepository repo;
