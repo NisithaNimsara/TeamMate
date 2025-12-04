@@ -40,10 +40,10 @@ public class ParticipantController {
     private void register() {
         try {
             System.out.println("\n-- New Registration --");
-            String name = input.readLine("Enter your name: ");
-            String email = getValidEmail();
+            String name = input.readLine("Enter your name: "); //1.1
+            String email = getValidEmail(); //1.2
 
-            // Gather details
+            // Gather details             //1.3 - 1.4
             GameType game = GameType.fromInt(input.readInt("\nSelect Preferred Game: " +
                     "\n1. CHESS" +
                     "\n2. FIFA" +
@@ -53,7 +53,8 @@ public class ParticipantController {
                     "\n6. VALORANT" +
                     "\nChoice: ", 1, 6));
 
-            int skill = input.readInt("Enter your skill level (1–10): ", 1, 10);
+            int skill = input.readInt("Enter your skill level (1–10): ", 1, 10); //1.5
+                                           //1.6 - 1.7
             RoleType role = RoleType.getRoleType(input.readInt("\nSelect preferred Role: " +
                     "\n1. STRATEGIST  - Focuses on tactics and planning. Keeps the bigger picture in mind during gameplay." +
                     "\n2. ATTACKER    - Frontline player. Good reflexes, offensive tactics, quick execution." +
@@ -67,33 +68,32 @@ public class ParticipantController {
                     "\nAnswer the following 5 questions: " +
                     "\n (1= Strongly disagree .. 5=Strongly agree)");
 
-            int score = classifier.calculateScore(
-                    input.readInt("I enjoy taking the lead and guiding others during group activities.: ", 1, 5),
-                    input.readInt("I prefer analyzing situations and coming up with strategic solutions.: ", 1, 5),
-                    input.readInt("I work well with others and enjoy collaborative teamwork.: ", 1, 5),
-                    input.readInt("I am calm under pressure and can help maintain team morale.: ", 1, 5),
-                    input.readInt("I like making quick decisions and adapting in dynamic situations.: ", 1, 5)
-            );
+            int Q1 = input.readInt("I enjoy taking the lead and guiding others during group activities.: ", 1, 5); //1.8
+            int Q2 = input.readInt("I prefer analyzing situations and coming up with strategic solutions.: ", 1, 5); //1.9
+            int Q3 = input.readInt("I work well with others and enjoy collaborative teamwork.: ", 1, 5); //1.10
+            int Q4 = input.readInt("I am calm under pressure and can help maintain team morale.: ", 1, 5); //1.11
+            int Q5 = input.readInt("I like making quick decisions and adapting in dynamic situations.: ", 1, 5); //1.12
+            int score = classifier.calculateScore(Q1,Q2,Q3,Q4,Q5);  //1.13
 
             //will return the Personality Type
-            PersonalityType type = classifier.classify(score);
+            PersonalityType type = classifier.classify(score);   //1.14
             if (type == PersonalityType.OTHER) {
                 System.out.println("Sorry Participant, your personality score fell slightly below the the benchmark we required. Good luck for next time.");
                 return;}
 
             System.out.println("Personality survey completed. Score: " + score + ", Type: "+ type);
 
-            // Q. to append to csv
+            // Q. to append to csv               //1.15
             if (input.readInt("\nDo you want to add this to CSV? (1=Yes, 0=No): ", 0, 1) == 1){
                 //if yes
-                //object crete
+                //object crete                   //1.16 - 1.17
                 Participant p = new Participant(repo.generateNextId(), name, email, game, skill, role, score, type);
 
-                //tread object create
+                //tread object create            //1.18
                 SaveParticipantThread t = new SaveParticipantThread(repo, p);
 
-                t.start();
-                t.join();
+                t.start();                      //1.19
+                t.join();                       //1.20
                 //grantee the error count = null
                 if (t.getError() == null)
                     System.out.println("\nRegistration of "+ p.getName()+" with ID "+p.getId()+ " saved successfully.");
