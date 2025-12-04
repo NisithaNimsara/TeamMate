@@ -2,6 +2,8 @@ package Controllers;
 
 import Models.*;
 import ValidatorHelp.*;
+
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -126,11 +128,11 @@ public class ParticipantController {
     // Search and display participant details
     private void checkDetails() {
         String email = input.readLine("\nEnter your email: ");
-        repo.findByEmail(email).ifPresentOrElse(
-                //if present
-                System.out::println,
-                //else
-                () -> logger.info("No participant found with this email: "+ email)
-        );
+        Optional<Participant> find = repo.findByEmail(email);
+        if (find.isPresent()) {
+            System.out.println(find.get().toString());
+        } else {
+            System.out.println("No participant found with this email: "+ email);
+        }
     }
 }
