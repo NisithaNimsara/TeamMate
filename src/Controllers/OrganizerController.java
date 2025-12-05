@@ -103,7 +103,7 @@ public class OrganizerController {
             }
         }
     }
-
+                                                                     // 6.1
     private void viewRemaining(){
         if (currentTeams == null){
             System.out.println("No teams formed yet.");
@@ -113,7 +113,7 @@ public class OrganizerController {
         if (leftovers.isEmpty()) {
             System.out.println("Everyone was placed in a team!");
         } else {
-            for (Participant p : leftovers) {
+            for (Participant p : leftovers) {                      // 6.2
                 System.out.println("|ID: "+p.getId()+ " |Name: " +p.getName()+ " |Game: "+p.getPreferredGame()+ " |Skill: "+p.getSkillLevel()+" |Role: "+p.getPreferredRole()+" |Personality Type: "+p.getPersonalityType());
             }
         }
