@@ -41,11 +41,11 @@ public class OrganizerController {
             }
         }
     }
-
+                                                              // 3.1
     private void importCSV() {
-        String file = input.readLine("Enter Filename(without extension): ");
+        String file = input.readLine("Enter Filename(without extension): ");     // 3.2
         try {
-            int[] res = repo.importExternalFile(file+".csv");
+            int[] res = repo.importExternalFile(file+".csv");                    // 3.3
             System.out.printf("\nImported %d participants, ignored %d.", res[0], res[1]);
         } catch (Exception e) {
             logger.log(Level.WARNING, "Import CSV failed!", e.getMessage());
