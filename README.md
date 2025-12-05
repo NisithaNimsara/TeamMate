@@ -82,11 +82,7 @@ TeamMate/
 │  │  └─ SaveParticipantThread.java
 │  └─ ValidatorHelp/
 │     ├─ ConsoleInput.java
-│     ├─ FileProcessingException.java
-│     └─ InvalidParticipantException.java
-├─ Tests/
-│  ├─ PersonalityClassifierTest.java
-│  └─ TeamBuilderTest.java
+│     └─ FileProcessingException.java
 ├─ participants_sample.csv      # Example participant data
 ├─ copy.csv                     # Another sample CSV
 └─ README.md
