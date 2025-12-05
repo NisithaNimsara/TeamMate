@@ -126,12 +126,12 @@ public class ParticipantController {
     }
 
 
-    // Search and display participant details
+    // Search and display participant details                            // 2.1
     private void checkDetails() {
-        String email = input.readLine("\nEnter your email: ");    // 2.1
-        Optional<Participant> find = repo.findByEmail(email);            // 2.2
+        String email = input.readLine("\nEnter your email: ");    // 2.2
+        Optional<Participant> find = repo.findByEmail(email);            // 2.3
         if (find.isPresent()) {
-            System.out.println(find.get().toString());                   // 2.3
+            System.out.println(find.get().toString());                   // 2.4
         } else {
             System.out.println("No participant found with this email: "+ email);
         }
