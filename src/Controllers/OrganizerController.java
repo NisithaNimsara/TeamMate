@@ -78,23 +78,23 @@ public class OrganizerController {
             logger.log(Level.WARNING, "Formation failed!", e.getMessage());
         }
     }
-
+                                              //5.1
     private void viewAndExport() {
         if (currentTeams == null) {
             System.out.println("No teams formed yet.");
             return;
         }
         System.out.println();
-        currentTeams.forEach(System.out::println);
+        currentTeams.forEach(System.out::println);                    // 5.2
 
-        if (input.readInt("Export to CSV? (1=Yes, 0=No): ", 0, 1) == 1) {
-            String file = input.readLine("Enter export file name(without extension): ");
+        if (input.readInt("Export to CSV? (1=Yes, 0=No): ", 0, 1) == 1) {         // 5.3
+            String file = input.readLine("Enter export file name(without extension): ");    // 5.4
 
-            try (PrintWriter writer = new PrintWriter(new FileWriter(file+".csv"))) {
-                writer.println("TeamID,ID,Name,Email,Game,Skill,Role,Score,Type");
+            try (PrintWriter writer = new PrintWriter(new FileWriter(file+".csv"))) {      // 5.5
+                writer.println("TeamID,ID,Name,Email,Game,Skill,Role,Score,Type");                 // 5.6
                 for (Team t : currentTeams) {
-                    for (Participant p : t.getMembers()) {
-                        writer.println(t.toCSVRow(p));
+                    for (Participant p : t.getMembers()) {                                         // 5.7
+                        writer.println(t.toCSVRow(p));                                             // 5.8 and 5.9
                     }
                 }
                 System.out.println("\nTeams exported Successfully to "+file+".csv");
