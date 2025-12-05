@@ -16,7 +16,7 @@ public class SaveParticipantThread extends Thread {
     @Override
     public void run() {
         try {
-            repo.addParticipant(participant);
+            repo.addParticipant(participant);     // 1.19.1
         } catch (FileProcessingException e) {
             error = e;
         }
