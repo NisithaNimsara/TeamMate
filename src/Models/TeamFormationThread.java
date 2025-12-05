@@ -22,7 +22,7 @@ public class TeamFormationThread extends Thread {
     @Override
     public void run() {
         try {
-            result = teamBuilder.formTeams(participants, teamSize);
+            result = teamBuilder.formTeams(participants, teamSize);     // 4.5.1
         } catch (Exception e) {
             error = e;
         }

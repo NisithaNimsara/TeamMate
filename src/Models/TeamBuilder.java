@@ -47,9 +47,9 @@ public class TeamBuilder {
         int maxTeamsByTotal = allParticipants.size() / teamSize;
 
         //final team count is the smallest of these constraints
-        int teamCount = Math.min(maxTeamsByLeader, Math.min(maxTeamsByThinker, maxTeamsByTotal));
+        int teamCount = Math.min(maxTeamsByLeader, Math.min(maxTeamsByThinker, maxTeamsByTotal));     // 4.5.2
 
-        //initialize every team with 1 Leader
+        //initialize every team with 1 Leader                                                         // 4.5.3 --
         for (int i = 1; i <= teamCount; i++) {
             Team t = new Team(i);
             t.addMember(leaders.pop()); //pop from laders
@@ -117,14 +117,14 @@ public class TeamBuilder {
                 leftovers.addAll(t.getMembers()); //move all members to leftovers
                 finalIt.remove(); //delete the team
             }
-        }
+        }                                                                                            //-- 4.5.3
 
         //add all unused players to leftover's list
-        leftovers.addAll(thinkers);
-        leftovers.addAll(balanced);
+        leftovers.addAll(thinkers);                                                                  // 4.5.4 --
+        leftovers.addAll(balanced);                                                                  // -- 4.5.4
 
         // Return the final result, valid teams and leftover participants
-        return new TeamFormationResult(teams, leftovers);
+        return new TeamFormationResult(teams, leftovers);                                            // 4.5.5
     }
 
     //------Helper Methods--------

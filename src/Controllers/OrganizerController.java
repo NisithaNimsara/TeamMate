@@ -51,21 +51,21 @@ public class OrganizerController {
             logger.log(Level.WARNING, "Import CSV failed!", e.getMessage());
         }
     }
-
+                                                           // 4.1
     private void formTeams() {
         System.out.println("\n-- Team Formation --");
-        int size = input.readInt("Enter Team Size (2-10): ", 2, 10);
+        int size = input.readInt("Enter Team Size (2-10): ", 2, 10);     // 4.2
 
-        TeamFormationThread t = new TeamFormationThread(builder, repo.getAll(), size);
-        t.start();
+        TeamFormationThread t = new TeamFormationThread(builder, repo.getAll(), size);    // 4.3 and 4.4
+        t.start();                                                                        // 4.5
         try {
-            t.join();
-            if (t.getError() != null) throw t.getError();
+            t.join();                                                                     // 4.6
+            if (t.getError() != null) throw t.getError();                                 // 4.7
 
-            TeamFormationResult result = t.getResult();
+            TeamFormationResult result = t.getResult();                                   // 4.8
 
-            this.currentTeams = result.getTeams();
-            this.leftovers = result.getLeftovers();
+            this.currentTeams = result.getTeams();                                        // 4.9
+            this.leftovers = result.getLeftovers();                                       // 4.10
 
             if (currentTeams.isEmpty()) {
                 System.out.println("Could not form any valid teams.");
